@@ -9,10 +9,14 @@ const sampleJson = `
 {
     "name": "chris",
     "age": [27, 3, 0],
-	"pref": {
+	"pref": [{
 		"color": "blue",
 		"food": "pizza"
 	},
+	{
+		"color": "red",
+		"food": "ice cream"
+	}],
 	"awesome": true
 }
 `
@@ -39,7 +43,10 @@ func main() {
 		panic(err)
 	}
 
-	goRep := BuildGoStruct(rawJson, 0, "    ")
+	goRep := BuildGoStruct(rawJson, "TestStruct", 0, "    ")
+	instance := GoInstance{*goRep}
 
 	fmt.Println(goRep)
+	fmt.Println("\n\n\n")
+	fmt.Println(instance)
 }
