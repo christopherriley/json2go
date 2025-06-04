@@ -22,8 +22,8 @@ type GoField struct {
 	subStruct *GoStruct
 }
 
-func newArrayField(v []any, name string) GoField {
-	goField := newScalarField(v[0], name)
+func newArrayField(v []any, name string, depth int, indent string) GoField {
+	goField := newScalarField(v[0], name, depth, indent)
 	goField.array = true
 
 	if goField.t == fieldFloat {
@@ -45,7 +45,7 @@ func newArrayField(v []any, name string) GoField {
 	return goField
 }
 
-func newScalarField(v any, name string) GoField {
+func newScalarField(v any, name string, depth int, indent string) GoField {
 	f := GoField{
 		name: name,
 	}
@@ -66,20 +66,20 @@ func newScalarField(v any, name string) GoField {
 		}
 
 		f.t = fieldStruct
-		f.subStruct = BuildGoStruct(sub)
+		f.subStruct = BuildGoStruct(sub, depth+1, indent)
 	}
 
 	return f
 }
 
-func NewField(k string, v any) GoField {
+func NewField(k string, v any, depth int, indent string) GoField {
 	var f GoField
 
 	switch v := v.(type) {
 	case []any:
-		f = newArrayField(v, k)
+		f = newArrayField(v, k, depth, indent)
 	default:
-		f = newScalarField(v, k)
+		f = newScalarField(v, k, depth, indent)
 	}
 
 	return f

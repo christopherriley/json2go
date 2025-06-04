@@ -39,7 +39,7 @@ func main() {
 		panic(err)
 	}
 
-	goRep := BuildGoStruct(rawJson)
+	goRep := BuildGoStruct(rawJson, 0, "    ")
 
 	fmt.Println(goRep)
 }
