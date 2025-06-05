@@ -14,6 +14,8 @@ func main() {
 	flagStructName := flag.String("struct", "Anonymous", "the name for the generated struct type")
 	flagInstanceVar := flag.String("var", "Instance", "the name for the generated instance variable")
 
+	flag.Parse()
+
 	if len(strings.TrimSpace(*flagInputFile)) == 0 {
 		fmt.Println("must provide input json file with -in")
 		os.Exit(1)
