@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"strings"
 )
 
 type fieldType int
@@ -23,12 +22,14 @@ type GoField struct {
 	t         fieldType
 	subStruct *GoStruct
 	val       any
+	depth     int
+	indent    string
 }
 
 func newArrayField(v []any, name string, depth int, indent string) GoField {
 	goField := newScalarField(v, name, depth, indent)
 	goField.array = true
-	goField.val = v
+	goField.depth = depth
 
 	if goField.t == fieldFloat {
 		goField.t = fieldInt
@@ -51,8 +52,10 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 
 func newScalarField(v []any, name string, depth int, indent string) GoField {
 	f := GoField{
-		name: name,
-		val:  v,
+		name:   name,
+		val:    v,
+		indent: indent,
+		depth:  depth,
 	}
 
 	switch v[0].(type) {
@@ -117,124 +120,16 @@ func (f GoField) String() string {
 	return s
 }
 
-func (f GoField) Value() string {
-	var ret string
-
-	if f.array {
-		var typeName string
-		value := "{"
-
-		switch f.t {
-		case fieldString:
-			typeName = "string"
-			for _, elem := range f.val.([]any) {
-				value += fmt.Sprintf("\"%s\",", elem.(string))
-			}
-
-			value = value[:len(value)-1] + "}"
-
-		case fieldInt:
-			typeName = "int"
-			for _, elem := range f.val.([]any) {
-				value += fmt.Sprintf("%d,", int(elem.(float64)))
-			}
-
-			value = value[:len(value)-1] + "}"
-
-		case fieldFloat:
-			typeName = "float64"
-			for _, elem := range f.val.([]any) {
-				value += fmt.Sprintf("%f,", elem.(float64))
-			}
-
-			value = value[:len(value)-1] + "}"
-
-		case fieldBool:
-			typeName = "bool"
-			for _, elem := range f.val.([]any) {
-				value += fmt.Sprintf("%t,", elem.(bool))
-			}
-
-			value = value[:len(value)-1] + "}"
-
-		case fieldStruct:
-			typeName = f.subStruct.String()
-			for _, elem := range f.val.([]any) {
-				s := BuildGoStruct(elem.(map[string]any), "", f.subStruct.depth+1, f.subStruct.indent)
-				value += "\n" + strings.Repeat(f.subStruct.indent, f.subStruct.depth+1)
-				value += fmt.Sprintf("%s,", GoInstance{*s}.String())
-			}
-
-			value += "\n" + strings.Repeat(f.subStruct.indent, f.subStruct.depth) + "}"
-
-		default:
-			panic(fmt.Sprintf("field '%s' has unknown type %d", f.name, f.t))
-		}
-
-		ret = fmt.Sprintf("[]%s%s", typeName, value)
-	} else {
-		switch f.t {
-		case fieldString:
-			ret = fmt.Sprintf("\"%s\"", f.val.([]any)[0].(string))
-		case fieldBool:
-			ret = fmt.Sprintf("%t", f.val.([]any)[0].(bool))
-		case fieldInt:
-			ret = fmt.Sprintf("%d", int(f.val.([]any)[0].(float64)))
-		case fieldFloat:
-			ret = fmt.Sprintf("%f", f.val.([]any)[0].(float64))
-		default:
-			panic(fmt.Sprintf("field '%s' has unknown type %d", f.name, f.t))
-		}
+func (f GoField) Value() GoValue {
+	ret := GoValue{
+		any:           f.val,
+		fieldName:     f.name,
+		fieldTypeName: f.typeName,
+		t:             f.t,
+		array:         f.array,
+		indent:        f.indent,
+		depth:         f.depth + 1,
 	}
-
-	/*type TestStruct struct {
-		name string
-		age  []int
-		pref []struct {
-			color string
-			food  string
-		}
-		awesome bool
-	}*/
-
-	/*a := TestStruct{
-		name: "chris",
-		age:  []int{27, 3, 0},
-		pref: []struct {
-			color string
-			food  string
-		}{
-			{
-				color: "blue",
-				food:  "pizza",
-			},
-			{
-				color: "red",
-				food:  "ice cream",
-			},
-		},
-		awesome: true,
-	}*/
-
-	/*a := TestStruct{
-		name: "chris",
-		age:  []int{27, 3, 0},
-		pref: []struct {
-			color string
-			food  string
-		}{
-			{
-				color: "blue",
-				food:  "pizza",
-			},
-			{
-				color: "red",
-				food:  "ice cream",
-			}},
-		awesome: true,
-	}*/
-
-	ret += ","
 
 	return ret
 }

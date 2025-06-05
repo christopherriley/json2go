@@ -10,25 +10,6 @@ type GoInstance struct {
 }
 
 func (i GoInstance) String() string {
-	/*a := GoField{
-		name: "abc",
-		subStruct: &GoStruct{
-			name:  "xyz",
-			depth: 1,
-		},
-	}*/
-
-	/*b := GoStruct{
-		field: []GoField{
-			{
-				name: "chris",
-			},
-			{
-				name: "bob",
-			},
-		},
-	}*/
-
 	ret := fmt.Sprintf("%s{\n", i.name)
 	for _, f := range i.field {
 		ret += strings.Repeat(i.indent, i.depth+1)

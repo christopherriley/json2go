@@ -21,21 +21,6 @@ const sampleJson = `
 }
 `
 
-type temp struct {
-	a string
-	b float64
-	c int
-	d *temp
-}
-
-type aTest struct {
-	a string
-	b struct {
-		c string
-		d int
-	}
-}
-
 func main() {
 	var rawJson map[string]any
 
