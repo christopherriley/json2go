@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -31,8 +32,14 @@ func BuildGoStruct(m map[string]any, name string, depth int, indent string) *GoS
 		name:   name,
 	}
 
-	for k, v := range m {
-		f := NewField(k, v, depth, indent)
+	fields := make([]string, 0, len(m))
+	for f := range m {
+		fields = append(fields, f)
+	}
+	sort.Strings(fields)
+
+	for _, f := range fields {
+		f := NewField(f, m[f], depth, indent)
 		s.field = append(s.field, f)
 	}
 

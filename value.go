@@ -69,6 +69,9 @@ func (v GoValue) String() string {
 			ret = fmt.Sprintf("%d", int(v.val.([]any)[0].(float64)))
 		case fieldFloat:
 			ret = fmt.Sprintf("%f", v.val.([]any)[0].(float64))
+		case fieldStruct:
+			s := BuildGoStruct(v.val.([]any)[0].(map[string]any), "", v.depth, v.indent)
+			ret = fmt.Sprintf("%s %s", s.String(), GoInstance{*s}.String())
 		default:
 			panic(fmt.Sprintf("field '%s' has unknown type %d", v.fieldName, v.t))
 		}
