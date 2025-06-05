@@ -18,6 +18,7 @@ const (
 
 type GoField struct {
 	name      string
+	typeName  string
 	array     bool
 	t         fieldType
 	subStruct *GoStruct
@@ -86,6 +87,21 @@ func NewField(k string, v any, depth int, indent string) GoField {
 		f = newScalarField([]any{v}, k, depth, indent)
 	}
 
+	switch f.t {
+	case fieldString:
+		f.typeName = "string"
+	case fieldFloat:
+		f.typeName = "float64"
+	case fieldInt:
+		f.typeName = "int"
+	case fieldBool:
+		f.typeName = "bool"
+	case fieldStruct:
+		f.typeName = f.subStruct.String()
+	default:
+		panic(fmt.Sprintf("field '%s' has unknown type %d", f.name, f.t))
+	}
+
 	return f
 }
 
@@ -96,20 +112,7 @@ func (f GoField) String() string {
 		s += "[]"
 	}
 
-	switch f.t {
-	case fieldString:
-		s += "string"
-	case fieldFloat:
-		s += "float64"
-	case fieldInt:
-		s += "int"
-	case fieldBool:
-		s += "bool"
-	case fieldStruct:
-		s += f.subStruct.String()
-	default:
-		panic(fmt.Sprintf("field '%s' has unknown type %d", f.name, f.t))
-	}
+	s += f.typeName
 
 	return s
 }
