@@ -46,7 +46,7 @@ func Generate(rawJson, pkgName, structName, varName string) string {
 
 	buf := bytes.Buffer{}
 	writer := io.Writer(&buf)
-	err := template.Must(template.New("gen").Parse(generatedFileTemplate)).Execute(writer, params)
+	err := template.Must(template.New("gen").Parse(generatedFileTemplate[1:])).Execute(writer, params)
 	if err != nil {
 		panic(fmt.Sprintf("template generation failed: %s", err))
 	}

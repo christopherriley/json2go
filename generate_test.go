@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -57,6 +59,56 @@ func TestGenerate(t *testing.T) {
 
 		testGenerate(t, basicJson, basicJsonMain, basicJsonMainExpectedOutput)
 	})
+
+	t.Run("json from example app", func(t *testing.T) {
+		const exampleAppJson = `
+			{
+				"version": "0.56",
+				"platform": {
+					"windows": {
+						"arch": ["amd64", "arm64"],
+						"output": "example.exe"
+					},
+					"linux": {
+						"arch": ["amd64"],
+						"output": "example_linux"
+					},
+					"darwin": {
+						"arch": ["amd64", "aarch64"],
+						"output": "example_macos"
+					}
+				}
+			}
+`
+
+		const exampleAppMain = `
+			package main
+
+			import "fmt"
+
+			func main() {
+				fmt.Println(sample.version)
+			}
+`
+
+		const exampleAppMainExpectedOutput = `
+			0.56
+`
+
+		testGenerate(t, exampleAppJson, exampleAppMain, exampleAppMainExpectedOutput)
+	})
+}
+
+func annotatedSource(src string) string {
+	ret := ""
+	scanner := bufio.NewScanner(strings.NewReader(src))
+	line := 1
+	for scanner.Scan() {
+		ret += fmt.Sprintf("%3d:    %s", line, scanner.Text()) + "\n"
+		line++
+	}
+
+	return ret
 }
 
 func testGenerate(t *testing.T, rawJson, mainFunc, expected string) {
@@ -91,7 +143,7 @@ func testGenerate(t *testing.T, rawJson, mainFunc, expected string) {
 	cmd.Stdout = writer
 	cmd.Stderr = writer
 	err = cmd.Run()
-	require.NoError(t, err, buf.String())
+	require.NoError(t, err, buf.String()+"\n\nGENERATED SOURCE FOLLOWS\n\n"+annotatedSource(generated))
 
 	// strip out tabs and spaces from the constant string
 	expected = strings.TrimSpace(strings.ReplaceAll(expected, "\t", ""))
