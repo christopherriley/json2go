@@ -18,7 +18,7 @@ type {{.StructName}} {{.StructDef}}
 var {{.VarName}} {{.StructName}} = {{.Instance}}
 `
 
-type Template struct {
+type TemplateParams struct {
 	PackageName string
 	StructName  string
 	StructDef   string
@@ -36,7 +36,7 @@ func Generate(rawJson, pkgName, structName, varName string) string {
 	goStruct := BuildGoStruct(rawJsonMap, structName, 0, "    ")
 	instance := GoInstance{*goStruct}
 
-	tmpl := Template{
+	params := TemplateParams{
 		PackageName: pkgName,
 		StructName:  structName,
 		StructDef:   goStruct.String(),
@@ -46,7 +46,7 @@ func Generate(rawJson, pkgName, structName, varName string) string {
 
 	buf := bytes.Buffer{}
 	writer := io.Writer(&buf)
-	err := template.Must(template.New("gen").Parse(generatedFileTemplate)).Execute(writer, tmpl)
+	err := template.Must(template.New("gen").Parse(generatedFileTemplate)).Execute(writer, params)
 	if err != nil {
 		panic(fmt.Sprintf("template generation failed: %s", err))
 	}
