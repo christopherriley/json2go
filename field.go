@@ -25,7 +25,7 @@ type GoField struct {
 }
 
 func newArrayField(v []any, name string, depth int, indent string) GoField {
-	goField := newScalarField(v[0], name, depth, indent)
+	goField := newScalarField(v, name, depth, indent)
 	goField.array = true
 	goField.val = v
 
@@ -48,13 +48,13 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 	return goField
 }
 
-func newScalarField(v any, name string, depth int, indent string) GoField {
+func newScalarField(v []any, name string, depth int, indent string) GoField {
 	f := GoField{
 		name: name,
 		val:  v,
 	}
 
-	switch v.(type) {
+	switch v[0].(type) {
 	case float64:
 		f.t = fieldFloat
 	case string:
@@ -64,7 +64,7 @@ func newScalarField(v any, name string, depth int, indent string) GoField {
 	case bool:
 		f.t = fieldBool
 	default:
-		sub, ok := v.(map[string]any)
+		sub, ok := v[0].(map[string]any)
 		if !ok {
 			panic("error parsing json")
 		}
@@ -83,7 +83,7 @@ func NewField(k string, v any, depth int, indent string) GoField {
 	case []any:
 		f = newArrayField(v, k, depth, indent)
 	default:
-		f = newScalarField(v, k, depth, indent)
+		f = newScalarField([]any{v}, k, depth, indent)
 	}
 
 	return f
@@ -172,13 +172,13 @@ func (f GoField) Value() string {
 	} else {
 		switch f.t {
 		case fieldString:
-			ret = fmt.Sprintf("\"%s\"", f.val.(string))
+			ret = fmt.Sprintf("\"%s\"", f.val.([]any)[0].(string))
 		case fieldBool:
-			ret = fmt.Sprintf("%t", f.val.(bool))
+			ret = fmt.Sprintf("%t", f.val.([]any)[0].(bool))
 		case fieldInt:
-			ret = fmt.Sprintf("%d", int(f.val.(float64)))
+			ret = fmt.Sprintf("%d", int(f.val.([]any)[0].(float64)))
 		case fieldFloat:
-			ret = fmt.Sprintf("%f", f.val.(float64))
+			ret = fmt.Sprintf("%f", f.val.([]any)[0].(float64))
 		default:
 			panic(fmt.Sprintf("field '%s' has unknown type %d", f.name, f.t))
 		}
