@@ -12,10 +12,6 @@ type GoStruct struct {
 	indent string
 }
 
-func (s GoStruct) TypeName() string {
-	return strings.ToUpper(s.name[:1]) + s.name[1:]
-}
-
 func (s GoStruct) String() string {
 	ret := "struct {\n"
 	for _, f := range s.field {

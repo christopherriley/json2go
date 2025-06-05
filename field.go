@@ -1,29 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"math"
 )
 
-type fieldType int
-
-const (
-	fieldString fieldType = iota
-	fieldInt
-	fieldFloat
-	fieldBool
-	fieldStruct
-)
-
 type GoField struct {
-	name      string
-	typeName  string
-	array     bool
-	t         fieldType
+	typeInfo
 	subStruct *GoStruct
 	val       any
-	depth     int
-	indent    string
 }
 
 func newArrayField(v []any, name string, depth int, indent string) GoField {
@@ -32,13 +16,13 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 	goField.depth = depth
 
 	if goField.t == fieldFloat {
-		goField.t = fieldInt
+		goField.setType(fieldInt)
 	loop:
 		for _, elem := range v {
 			switch v := elem.(type) {
 			case float64:
 				if v != math.Trunc(v) {
-					goField.t = fieldFloat
+					goField.setType(fieldFloat)
 					break loop
 				}
 			default:
@@ -51,33 +35,24 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 }
 
 func newScalarField(v []any, name string, depth int, indent string) GoField {
-	f := GoField{
-		name:   name,
-		val:    v,
-		indent: indent,
-		depth:  depth,
-	}
+	ti := NewTypeInfo(v[0], name, indent, depth)
 
-	switch v[0].(type) {
-	case float64:
-		f.t = fieldFloat
-	case string:
-		f.t = fieldString
-	case int:
-		f.t = fieldInt
-	case bool:
-		f.t = fieldBool
-	default:
+	var subStruct *GoStruct
+	if ti.t == fieldStruct {
 		sub, ok := v[0].(map[string]any)
 		if !ok {
 			panic("error parsing json")
 		}
 
-		f.t = fieldStruct
-		f.subStruct = BuildGoStruct(sub, name, depth+1, indent)
+		subStruct = BuildGoStruct(sub, name, depth+1, indent)
+		ti.fieldTypeName = subStruct.String()
 	}
 
-	return f
+	return GoField{
+		val:       v,
+		typeInfo:  ti,
+		subStruct: subStruct,
+	}
 }
 
 func NewField(k string, v any, depth int, indent string) GoField {
@@ -90,46 +65,28 @@ func NewField(k string, v any, depth int, indent string) GoField {
 		f = newScalarField([]any{v}, k, depth, indent)
 	}
 
-	switch f.t {
-	case fieldString:
-		f.typeName = "string"
-	case fieldFloat:
-		f.typeName = "float64"
-	case fieldInt:
-		f.typeName = "int"
-	case fieldBool:
-		f.typeName = "bool"
-	case fieldStruct:
-		f.typeName = f.subStruct.String()
-	default:
-		panic(fmt.Sprintf("field '%s' has unknown type %d", f.name, f.t))
-	}
-
 	return f
 }
 
 func (f GoField) String() string {
-	s := f.name + " "
+	s := f.fieldName + " "
 
 	if f.array {
 		s += "[]"
 	}
 
-	s += f.typeName
+	s += f.fieldTypeName
 
 	return s
 }
 
 func (f GoField) Value() GoValue {
 	ret := GoValue{
-		any:           f.val,
-		fieldName:     f.name,
-		fieldTypeName: f.typeName,
-		t:             f.t,
-		array:         f.array,
-		indent:        f.indent,
-		depth:         f.depth + 1,
+		val:      f.val,
+		typeInfo: f.typeInfo,
 	}
+
+	ret.depth = ret.depth + 1
 
 	return ret
 }

@@ -6,13 +6,8 @@ import (
 )
 
 type GoValue struct {
-	any
-	fieldName     string
-	fieldTypeName string
-	t             fieldType
-	array         bool
-	indent        string
-	depth         int
+	typeInfo
+	val any
 }
 
 func (v GoValue) String() string {
@@ -23,35 +18,35 @@ func (v GoValue) String() string {
 
 		switch v.t {
 		case fieldString:
-			for _, elem := range v.any.([]any) {
+			for _, elem := range v.val.([]any) {
 				value += fmt.Sprintf("\"%s\",", elem.(string))
 			}
 
 			value = value[:len(value)-1] + "}"
 
 		case fieldInt:
-			for _, elem := range v.any.([]any) {
+			for _, elem := range v.val.([]any) {
 				value += fmt.Sprintf("%d,", int(elem.(float64)))
 			}
 
 			value = value[:len(value)-1] + "}"
 
 		case fieldFloat:
-			for _, elem := range v.any.([]any) {
+			for _, elem := range v.val.([]any) {
 				value += fmt.Sprintf("%f,", elem.(float64))
 			}
 
 			value = value[:len(value)-1] + "}"
 
 		case fieldBool:
-			for _, elem := range v.any.([]any) {
+			for _, elem := range v.val.([]any) {
 				value += fmt.Sprintf("%t,", elem.(bool))
 			}
 
 			value = value[:len(value)-1] + "}"
 
 		case fieldStruct:
-			for _, elem := range v.any.([]any) {
+			for _, elem := range v.val.([]any) {
 				s := BuildGoStruct(elem.(map[string]any), "", v.depth+1, v.indent)
 				value += "\n" + strings.Repeat(v.indent, v.depth+1)
 				value += fmt.Sprintf("%s,", GoInstance{*s}.String())
@@ -67,13 +62,13 @@ func (v GoValue) String() string {
 	} else {
 		switch v.t {
 		case fieldString:
-			ret = fmt.Sprintf("\"%s\"", v.any.([]any)[0].(string))
+			ret = fmt.Sprintf("\"%s\"", v.val.([]any)[0].(string))
 		case fieldBool:
-			ret = fmt.Sprintf("%t", v.any.([]any)[0].(bool))
+			ret = fmt.Sprintf("%t", v.val.([]any)[0].(bool))
 		case fieldInt:
-			ret = fmt.Sprintf("%d", int(v.any.([]any)[0].(float64)))
+			ret = fmt.Sprintf("%d", int(v.val.([]any)[0].(float64)))
 		case fieldFloat:
-			ret = fmt.Sprintf("%f", v.any.([]any)[0].(float64))
+			ret = fmt.Sprintf("%f", v.val.([]any)[0].(float64))
 		default:
 			panic(fmt.Sprintf("field '%s' has unknown type %d", v.fieldName, v.t))
 		}
