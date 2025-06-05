@@ -1,5 +1,17 @@
 package main
 
+// example app that demonstrates code generation from json
+
+// how to try this example
+// - go generate
+// - go run .
+
+// explanation of go generate directive:
+// - input file is config.json, from current directory
+// - config.go will be generated from the input json file
+// - the struct name in the generated go file will be called 'Config'
+// - the instance of the struct in the generated go file will be called 'config'
+
 //go:generate go run github.com/christopherriley/json2go -in config.json -out config.go -struct Config -var config
 
 import "fmt"
