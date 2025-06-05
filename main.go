@@ -27,7 +27,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	generatedCode := Generate(string(raw), *flagPackageName, *flagStructName, *flagInstanceVar)
+	generatedCode := Generate(*flagInputFile, string(raw), *flagPackageName, *flagStructName, *flagInstanceVar)
 
 	if len(strings.TrimSpace(*flagOutputFile)) == 0 {
 		fmt.Println(generatedCode)

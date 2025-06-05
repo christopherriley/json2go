@@ -9,7 +9,8 @@ import (
 )
 
 const generatedFileTemplate string = `
-// generated file - do not modify
+// this file was generated from {{.JsonSourceFile}}
+// do not modify
 
 package {{.PackageName}}
 
@@ -19,14 +20,15 @@ var {{.VarName}} {{.StructName}} = {{.Instance}}
 `
 
 type TemplateParams struct {
-	PackageName string
-	StructName  string
-	StructDef   string
-	VarName     string
-	Instance    string
+	JsonSourceFile string
+	PackageName    string
+	StructName     string
+	StructDef      string
+	VarName        string
+	Instance       string
 }
 
-func Generate(rawJson, pkgName, structName, varName string) string {
+func Generate(srcFileName, rawJson, pkgName, structName, varName string) string {
 	var rawJsonMap map[string]any
 
 	if err := json.Unmarshal([]byte(rawJson), &rawJsonMap); err != nil {
@@ -37,11 +39,12 @@ func Generate(rawJson, pkgName, structName, varName string) string {
 	instance := GoInstance{*goStruct}
 
 	params := TemplateParams{
-		PackageName: pkgName,
-		StructName:  structName,
-		StructDef:   goStruct.String(),
-		VarName:     varName,
-		Instance:    instance.String(),
+		JsonSourceFile: srcFileName,
+		PackageName:    pkgName,
+		StructName:     structName,
+		StructDef:      goStruct.String(),
+		VarName:        varName,
+		Instance:       instance.String(),
 	}
 
 	buf := bytes.Buffer{}
