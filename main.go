@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -16,19 +17,27 @@ func main() {
 
 	flag.Parse()
 
+	var input, generatedFileComment string
+
 	if len(strings.TrimSpace(*flagInputFile)) == 0 {
-		fmt.Println("must provide input json file with -in")
-		os.Exit(1)
+		os.Stderr.WriteString("input file was not specified - reading from stdin\n\n")
+		for scanner := bufio.NewScanner(os.Stdin); scanner.Scan(); {
+			input += scanner.Text()
+		}
+
+		generatedFileComment = "this file was generated"
+	} else {
+		rawBytes, err := os.ReadFile(*flagInputFile)
+		if err != nil {
+			fmt.Printf("failed to read input json file: %s\n", err)
+			os.Exit(1)
+		}
+
+		input = string(rawBytes)
+		generatedFileComment = fmt.Sprintf("this file was generated from %s", *flagInputFile)
 	}
 
-	raw, err := os.ReadFile(*flagInputFile)
-	if err != nil {
-		fmt.Printf("failed to read input json file: %s\n", err)
-		os.Exit(1)
-	}
-
-	generatedFileComment := fmt.Sprintf("this file was generated from %s", *flagInputFile)
-	generatedCode := Generate(generatedFileComment, string(raw), *flagPackageName, *flagStructName, *flagInstanceVar)
+	generatedCode := Generate(generatedFileComment, input, *flagPackageName, *flagStructName, *flagInstanceVar)
 
 	if len(strings.TrimSpace(*flagOutputFile)) == 0 {
 		fmt.Println(generatedCode)
