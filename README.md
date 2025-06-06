@@ -42,7 +42,7 @@ config.json
 
 create a go program that will consume the json file. include the `go generate` directive.
 
-generate.go
+main.go
 ```go
 package main
 
@@ -91,7 +91,7 @@ var config Config = Config{
 #### `step 4 - run the app`
 
 ```bash
-go run generate.go config.go
+go run main.go config.go
 ```
 
 you should see the following output:
