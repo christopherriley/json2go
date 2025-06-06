@@ -8,20 +8,16 @@ This module converts a json blob to go code. It can be used as a go generator wi
 
 ### `quick start - generate code from stdin`
 
-to generate code from stdin, run the app with no parameters:
+try the following example to generate code from stdin:
 
 ```bash
-> go run .
-```
-
-enter the following json, followed by ctrl-c to terminate input
-```json
+cat <<EOF | go run .
 {
   "name": "bob",
   "age": 28
 }
+EOF
 ```
-
 the generated go source will be written to the console.
 
 ### `how to use as a go generator`
