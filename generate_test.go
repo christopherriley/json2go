@@ -47,6 +47,7 @@ func TestGenerate(t *testing.T) {
 				fmt.Println(sample.age[0])
 				fmt.Println(sample.age[1])
 				fmt.Println(sample.age[2])
+				fmt.Println(sample.age[3])
 			}
 `
 
@@ -58,6 +59,7 @@ func TestGenerate(t *testing.T) {
 			27
 			18
 			-3
+			4.2
 		`
 
 		testGenerate(t, basicJson, basicJsonMain, basicJsonMainExpectedOutput)
