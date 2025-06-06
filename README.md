@@ -35,6 +35,7 @@ import "fmt"
 //go:generate go run github.com/christopherriley/json2go -in config.json -out config.go -struct Config -var config
 
 func main() {
+	// note the instance variable name matches the -var flag to the generate directive, above
 	fmt.Println("name: ", config.name)
 	fmt.Println("age: ", config.age)
 }
