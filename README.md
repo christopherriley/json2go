@@ -1,4 +1,4 @@
-### `json2go`
+### `json2go - convert json to go code`
 
 This module converts a json blob to go code. It can be used as a go generator with a directive like the following:
 
