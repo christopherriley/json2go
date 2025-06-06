@@ -1,10 +1,6 @@
 ## `json2go - convert json to go code`
 
-This module converts a json blob to go code. It can be used as a go generator with a directive like the following:
-
-```
-//go:generate go run github.com/christopherriley/json2go -in config.json -out config.go -struct Config -var config
-```
+This module converts a json blob to go code. Reading from stdin is supported, as well as reading from input files, making it suitable for use with `go generate`.
 
 ### `quick start - generate code from stdin`
 
@@ -23,6 +19,12 @@ the generated go source will be written to the console.
 ### `how to use as a go generator`
 
 Be sure to check out the [example app](example/)
+
+to use this module with `go generate`, use a directive like the following in your go source:
+
+```
+//go:generate go run github.com/christopherriley/json2go -in config.json -out config.go -struct Config -var config
+```
 
 #### `step 1 - create json file`
 
