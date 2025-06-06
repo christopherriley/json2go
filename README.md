@@ -60,13 +60,13 @@ func main() {
 in order for the app to run, the go code will need to be generated from the json
 
 ```bash
-> go generate
+go generate
 ```
 
 you can examine the generated source
 
 ```bash
-> cat config.go
+cat config.go
 ```
 
 ```go
@@ -89,7 +89,7 @@ var config Config = Config{
 #### `step 4 - run the app`
 
 ```bash
-> go run generate.go config.go
+go run generate.go config.go
 ```
 
 you should see the following output:
