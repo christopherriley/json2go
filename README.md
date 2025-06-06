@@ -1,0 +1,85 @@
+### `json2go`
+
+This module converts a json blob to go code. It can be used as a go generator with a directive like the following:
+
+```
+//go:generate go run github.com/christopherriley/json2go -in config.json -out config.go -struct Config -var config
+```
+
+### `how to use`
+
+Be sure to check out the [example app](example/)
+
+#### `step 1 - create json file`
+
+create a simple json file to start with, for example
+
+config.json
+```json
+{
+  "name": "bob",
+  "age": 28
+}
+```
+
+#### `step 2 - create a go main`
+
+create a go program that will consume the json file. include the `go generate` directive.
+
+generate.go
+```go
+package main
+
+import "fmt"
+
+//go:generate go run github.com/christopherriley/json2go -in config.json -out config.go -struct Config -var config
+
+func main() {
+	fmt.Println("name: ", config.name)
+	fmt.Println("age: ", config.age)
+}
+```
+
+#### `step 3 - generate the code`
+
+the app will not work until the code is generated from the json
+
+```bash
+> go generate
+```
+
+you can examine the generated source
+
+```bash
+> cat config.go
+```
+
+```go
+// this file was generated from config.json
+// do not modify
+
+package main
+
+type Config struct {
+    age int
+    name string
+}
+
+var config Config = Config{
+    age: 28,
+    name: "bob",
+}
+```
+
+#### `step 4 - run the app`
+
+```bash
+> go run generate.go config.go
+```
+
+you should see the following output:
+
+```bash
+name: bob
+age: 28
+```
