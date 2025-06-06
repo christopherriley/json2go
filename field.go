@@ -25,6 +25,7 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 					goField.setType(fieldFloat)
 					break loop
 				}
+
 			default:
 				panic("mixed arrays not allowed")
 			}
@@ -63,6 +64,11 @@ func NewField(k string, v any, depth int, indent string) GoField {
 		f = newArrayField(v, k, depth, indent)
 	default:
 		f = newScalarField([]any{v}, k, depth, indent)
+		if f.t == fieldFloat {
+			if f.val.([]any)[0].(float64) == math.Trunc(f.val.([]any)[0].(float64)) {
+				f.setType(fieldInt)
+			}
+		}
 	}
 
 	return f
