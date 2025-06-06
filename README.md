@@ -87,4 +87,4 @@ age: 28
 
 ### `unsupported features`
 
-json/javascript has support for [mixed arrays](https://www.geeksforgeeks.org/types-of-arrays-in-javascript/#mixed-arrays). go can achieve the same thing using `[]any`, but this defeats the purpose of this project. therefore json arrays with mixed types are not supported. 
+json/javascript has support for [mixed arrays](https://www.geeksforgeeks.org/types-of-arrays-in-javascript/#mixed-arrays). go can achieve the same thing using `[]any`, but defeats the purpose of this project. therefore json arrays with mixed types are not supported. 
