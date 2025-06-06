@@ -42,7 +42,7 @@ func main() {
 
 #### `step 3 - generate the code`
 
-the app will not work until the code is generated from the json
+in order for the app to run, the go code will need to be generated from the json
 
 ```bash
 > go generate
