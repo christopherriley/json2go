@@ -102,6 +102,32 @@ func TestGenerate(t *testing.T) {
 
 		testGenerate(t, exampleAppJson, exampleAppMain, exampleAppMainExpectedOutput)
 	})
+
+	t.Run("empty array", func(t *testing.T) {
+		const exampleAppJson = `
+			{
+				"empty": []
+			}
+`
+
+		const exampleAppMain = `
+			package main
+
+			import "fmt"
+
+			func main() {
+				fmt.Println(sample.empty)
+				fmt.Println(len(sample.empty))
+			}
+`
+
+		const exampleAppMainExpectedOutput = `
+			[]
+			0
+`
+
+		testGenerate(t, exampleAppJson, exampleAppMain, exampleAppMainExpectedOutput)
+	})
 }
 
 func annotatedSource(src string) string {

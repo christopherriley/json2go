@@ -65,31 +65,31 @@ func (v GoValue) String() string {
 		switch v.t {
 		case fieldString:
 			for _, elem := range v.val.([]any) {
-				value += fmt.Sprintf("\"%s\",", getString(elem))
+				value += fmt.Sprintf(",\"%s\"", getString(elem))
 			}
 
-			value = value[:len(value)-1] + "}"
+			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldInt:
 			for _, elem := range v.val.([]any) {
-				value += fmt.Sprintf("%d,", getInt(elem))
+				value += fmt.Sprintf(",%d", getInt(elem))
 			}
 
-			value = value[:len(value)-1] + "}"
+			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldFloat:
 			for _, elem := range v.val.([]any) {
-				value += fmt.Sprintf("%f,", getFloat(elem))
+				value += fmt.Sprintf(",%f", getFloat(elem))
 			}
 
-			value = value[:len(value)-1] + "}"
+			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldBool:
 			for _, elem := range v.val.([]any) {
-				value += fmt.Sprintf("%t,", getBool(elem))
+				value += fmt.Sprintf(",%t", getBool(elem))
 			}
 
-			value = value[:len(value)-1] + "}"
+			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldStruct:
 			for _, elem := range v.val.([]any) {

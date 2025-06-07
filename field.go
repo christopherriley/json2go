@@ -10,6 +10,15 @@ type GoField struct {
 	val       any
 }
 
+func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
+	goField := newScalarField([]any{v}, name, depth, indent)
+	goField.array = true
+	goField.depth = depth
+	goField.val = []any{}
+
+	return goField
+}
+
 func newArrayField(v []any, name string, depth int, indent string) GoField {
 	goField := newScalarField(v, name, depth, indent)
 	goField.array = true
@@ -61,7 +70,11 @@ func NewField(k string, v any, depth int, indent string) GoField {
 
 	switch v := v.(type) {
 	case []any:
-		f = newArrayField(v, k, depth, indent)
+		if len(v) == 0 {
+			f = newEmptyArrayField("", k, depth, indent)
+		} else {
+			f = newArrayField(v, k, depth, indent)
+		}
 	default:
 		f = newScalarField([]any{v}, k, depth, indent)
 		if f.t == fieldFloat {
