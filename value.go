@@ -92,10 +92,16 @@ func (v GoValue) String() string {
 			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldStruct:
+			var elems []map[string]any
 			for _, elem := range v.val.([]any) {
-				s := BuildGoStruct(getMap(elem), "", v.depth+1, v.indent)
+				elems = append(elems, getMap(elem))
+			}
+
+			structs := BuildGoStructArray(elems, "", v.depth+1, v.indent)
+
+			for _, s := range structs {
 				value += "\n" + strings.Repeat(v.indent, v.depth+1)
-				value += fmt.Sprintf("%s,", GoInstance{*s}.String())
+				value += fmt.Sprintf("%s,", GoInstance{s}.String())
 			}
 
 			value += "\n" + strings.Repeat(v.indent, v.depth) + "}"

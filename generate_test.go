@@ -128,6 +128,37 @@ func TestGenerate(t *testing.T) {
 
 		testGenerate(t, exampleAppJson, exampleAppMain, exampleAppMainExpectedOutput)
 	})
+
+	t.Run("array with optional fields", func(t *testing.T) {
+		const exampleAppJson = `
+				{
+					"some_array": [{
+						"field_a": "a1",
+						"field_b": "b1"
+					},
+					{
+						"field_b": "b2",
+						"field_c": "c2"
+					}]
+				}
+	`
+
+		const exampleAppMain = `
+				package main
+
+				import "fmt"
+
+				func main() {
+					fmt.Println(len(sample.some_array))
+				}
+	`
+
+		const exampleAppMainExpectedOutput = `
+				2
+	`
+
+		testGenerate(t, exampleAppJson, exampleAppMain, exampleAppMainExpectedOutput)
+	})
 }
 
 func annotatedSource(src string) string {

@@ -45,3 +45,42 @@ func BuildGoStruct(m map[string]any, name string, depth int, indent string) *GoS
 
 	return &s
 }
+
+func BuildGoStructArray(m []map[string]any, name string, depth int, indent string) []GoStruct {
+	var ret []GoStruct
+
+	combinedFields := make(map[string]any)
+	for _, elem := range m {
+		for f, _ := range elem {
+			combinedFields[f] = ""
+		}
+	}
+
+	sortedCombinedFields := make([]string, 0, len(combinedFields))
+	for k, _ := range combinedFields {
+		sortedCombinedFields = append(sortedCombinedFields, k)
+	}
+	sort.Strings(sortedCombinedFields)
+
+	for _, elem := range m {
+		s := GoStruct{
+			depth:  depth,
+			indent: indent,
+			name:   name,
+		}
+
+		for _, field := range sortedCombinedFields {
+			if v, ok := elem[field]; ok {
+				f := NewField(field, v, depth, indent)
+				s.field = append(s.field, f)
+			} else {
+				f := NewField(field, "", depth, indent)
+				s.field = append(s.field, f)
+			}
+		}
+
+		ret = append(ret, s)
+	}
+
+	return ret
+}
