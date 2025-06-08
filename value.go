@@ -59,6 +59,10 @@ func getMap(v any) map[string]any {
 func (v GoValue) String() string {
 	var ret string
 
+	if v.t == fieldNil {
+		return ""
+	}
+
 	if v.array {
 		value := "{"
 
@@ -124,6 +128,7 @@ func (v GoValue) String() string {
 		case fieldStruct:
 			s := BuildGoStruct(getMap(v.val), "", v.depth, v.indent)
 			ret = fmt.Sprintf("%s %s", s.String(), GoInstance{*s}.String())
+		case fieldNil:
 		default:
 			panic(fmt.Sprintf("field '%s' has unknown type %d", v.fieldName, v.t))
 		}

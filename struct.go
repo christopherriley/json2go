@@ -49,7 +49,7 @@ func BuildGoStruct(m map[string]any, name string, depth int, indent string) *GoS
 func BuildGoStructArray(m []map[string]any, name string, depth int, indent string) []GoStruct {
 	var ret []GoStruct
 
-	combinedFields := make(map[string]any)
+	combinedFields := make(map[string]string)
 	for _, elem := range m {
 		for f, _ := range elem {
 			combinedFields[f] = ""
@@ -74,7 +74,10 @@ func BuildGoStructArray(m []map[string]any, name string, depth int, indent strin
 				f := NewField(field, v, depth, indent)
 				s.field = append(s.field, f)
 			} else {
-				f := NewField(field, "", depth, indent)
+				f := NewField(field, nil, depth, indent)
+				if len(s.field) > 0 {
+					f.setType(s.field[0].t)
+				}
 				s.field = append(s.field, f)
 			}
 		}

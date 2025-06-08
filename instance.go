@@ -12,8 +12,10 @@ type GoInstance struct {
 func (i GoInstance) String() string {
 	ret := fmt.Sprintf("%s{\n", i.name)
 	for _, f := range i.field {
-		ret += strings.Repeat(i.indent, i.depth+1)
-		ret += fmt.Sprintf("%s: %s\n", f.fieldName, f.Value())
+		if f.Value() != nil {
+			ret += strings.Repeat(i.indent, i.depth+1)
+			ret += fmt.Sprintf("%s: %s\n", f.fieldName, f.Value())
+		}
 	}
 
 	ret += strings.Repeat(i.indent, i.depth) + "}"

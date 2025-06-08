@@ -133,12 +133,12 @@ func TestGenerate(t *testing.T) {
 		const exampleAppJson = `
 				{
 					"some_array": [{
-						"field_a": "a1",
-						"field_b": "b1"
+						"field_a": 1,
+						"field_b": 2
 					},
 					{
-						"field_b": "b2",
-						"field_c": "c2"
+						"field_b": 3,
+						"field_c": 4
 					}]
 				}
 	`

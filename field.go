@@ -124,7 +124,11 @@ func (f GoField) String() string {
 	return s
 }
 
-func (f GoField) Value() GoValue {
+func (f GoField) Value() *GoValue {
+	if f.val == nil {
+		return nil
+	}
+
 	ret := GoValue{
 		val:      f.val,
 		typeInfo: f.typeInfo,
@@ -132,5 +136,5 @@ func (f GoField) Value() GoValue {
 
 	ret.depth = ret.depth + 1
 
-	return ret
+	return &ret
 }

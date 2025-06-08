@@ -3,7 +3,8 @@ package main
 type fieldType int
 
 const (
-	fieldString fieldType = iota
+	fieldNil fieldType = iota
+	fieldString
 	fieldInt
 	fieldFloat
 	fieldBool
@@ -29,6 +30,11 @@ func NewTypeInfo(v any, fieldName, indent string, depth int) typeInfo {
 		t:             ft,
 		indent:        indent,
 		depth:         depth,
+	}
+
+	if v == nil {
+		ti.setType(fieldNil)
+		return ti
 	}
 
 	switch v.(type) {
@@ -61,5 +67,7 @@ func (ti *typeInfo) setType(t fieldType) {
 		ti.fieldTypeName = "float64"
 	case fieldStruct:
 		ti.fieldTypeName = "struct"
+	case fieldNil:
+		ti.fieldTypeName = "nil"
 	}
 }
