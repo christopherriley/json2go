@@ -11,7 +11,7 @@ type GoField struct {
 }
 
 func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
-	goField := newScalarField([]any{v}, name, depth, indent)
+	goField := newScalarField(v, name, depth, indent)
 	goField.array = true
 	goField.depth = depth
 	goField.val = []any{}
@@ -20,9 +20,10 @@ func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
 }
 
 func newArrayField(v []any, name string, depth int, indent string) GoField {
-	goField := newScalarField(v, name, depth, indent)
+	goField := newScalarField(v[0], name, depth, indent)
 	goField.array = true
 	goField.depth = depth
+	goField.val = v
 
 	if goField.t == fieldFloat {
 		goField.setType(fieldInt)
@@ -44,12 +45,12 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 	return goField
 }
 
-func newScalarField(v []any, name string, depth int, indent string) GoField {
-	ti := NewTypeInfo(v[0], name, indent, depth)
+func newScalarField(v any, name string, depth int, indent string) GoField {
+	ti := NewTypeInfo(v, name, indent, depth)
 
 	var subStruct *GoStruct
 	if ti.t == fieldStruct {
-		sub, ok := v[0].(map[string]any)
+		sub, ok := v.(map[string]any)
 		if !ok {
 			panic("error parsing json")
 		}
@@ -76,9 +77,9 @@ func NewField(k string, v any, depth int, indent string) GoField {
 			f = newArrayField(v, k, depth, indent)
 		}
 	default:
-		f = newScalarField([]any{v}, k, depth, indent)
+		f = newScalarField(v, k, depth, indent)
 		if f.t == fieldFloat {
-			if f.val.([]any)[0].(float64) == math.Trunc(f.val.([]any)[0].(float64)) {
+			if f.val.(float64) == math.Trunc(f.val.(float64)) {
 				f.setType(fieldInt)
 			}
 		}

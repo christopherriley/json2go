@@ -108,15 +108,15 @@ func (v GoValue) String() string {
 	} else {
 		switch v.t {
 		case fieldString:
-			ret = fmt.Sprintf("\"%s\"", getString(v.val.([]any)[0]))
+			ret = fmt.Sprintf("\"%s\"", getString(v.val))
 		case fieldBool:
-			ret = fmt.Sprintf("%t", getBool(v.val.([]any)[0]))
+			ret = fmt.Sprintf("%t", getBool(v.val))
 		case fieldInt:
-			ret = fmt.Sprintf("%d", getInt(v.val.([]any)[0]))
+			ret = fmt.Sprintf("%d", getInt(v.val))
 		case fieldFloat:
-			ret = fmt.Sprintf("%f", getFloat(v.val.([]any)[0]))
+			ret = fmt.Sprintf("%f", getFloat(v.val))
 		case fieldStruct:
-			s := BuildGoStruct(getMap(v.val.([]any)[0]), "", v.depth, v.indent)
+			s := BuildGoStruct(getMap(v.val), "", v.depth, v.indent)
 			ret = fmt.Sprintf("%s %s", s.String(), GoInstance{*s}.String())
 		default:
 			panic(fmt.Sprintf("field '%s' has unknown type %d", v.fieldName, v.t))
