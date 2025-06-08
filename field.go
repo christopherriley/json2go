@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strings"
 )
 
 type GoField struct {
@@ -90,8 +91,22 @@ func newScalarField(v any, name string, depth int, indent string) GoField {
 	}
 }
 
+func sanitizeFieldName(name string) string {
+	name = strings.ReplaceAll(name, "/", "fwdslash")
+
+	for i := 0; i < 10; i++ {
+		if strings.HasPrefix(name, fmt.Sprintf("%d", i)) {
+			name = "_" + name
+		}
+	}
+
+	return name
+}
+
 func NewField(k string, v any, depth int, indent string) GoField {
 	var f GoField
+
+	k = sanitizeFieldName(k)
 
 	switch v := v.(type) {
 	case []any:

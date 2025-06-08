@@ -16,6 +16,10 @@ func getString(v any) string {
 	if !ok {
 		panic(fmt.Sprintf("cannot convert '%+v' to string", v))
 	}
+
+	str = strings.ReplaceAll(str, "\n", "\\n")
+	str = strings.ReplaceAll(str, "\"", `\"`)
+
 	return str
 }
 
