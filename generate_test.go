@@ -40,14 +40,14 @@ func TestGenerate(t *testing.T) {
 			import "fmt"
 
 			func main() {
-				fmt.Println(sample.name)
-				fmt.Println(sample.height)
-				fmt.Println("length of sample.age is", len(sample.age))
-				fmt.Println("length of sample.pref is", len(sample.pref))
-				fmt.Println(sample.age[0])
-				fmt.Println(sample.age[1])
-				fmt.Println(sample.age[2])
-				fmt.Println(sample.age[3])
+				fmt.Println(sample.Name)
+				fmt.Println(sample.Height)
+				fmt.Println("length of sample.age is", len(sample.Age))
+				fmt.Println("length of sample.pref is", len(sample.Pref))
+				fmt.Println(sample.Age[0])
+				fmt.Println(sample.Age[1])
+				fmt.Println(sample.Age[2])
+				fmt.Println(sample.Age[3])
 			}
 `
 
@@ -92,7 +92,7 @@ func TestGenerate(t *testing.T) {
 			import "fmt"
 
 			func main() {
-				fmt.Println(sample.version)
+				fmt.Println(sample.Version)
 			}
 `
 
@@ -116,8 +116,8 @@ func TestGenerate(t *testing.T) {
 			import "fmt"
 
 			func main() {
-				fmt.Println(sample.empty)
-				fmt.Println(len(sample.empty))
+				fmt.Println(sample.Empty)
+				fmt.Println(len(sample.Empty))
 			}
 `
 
@@ -149,7 +149,7 @@ func TestGenerate(t *testing.T) {
 				import "fmt"
 
 				func main() {
-					fmt.Println(len(sample.some_array))
+					fmt.Println(len(sample.Some_array))
 				}
 	`
 
@@ -230,7 +230,7 @@ func TestGenerate(t *testing.T) {
 				import "fmt"
 
 				func main() {
-					fmt.Println(sample.paths.fwdslash.get.summary)
+					fmt.Println(sample.Paths._fwdslash_.Get.Summary)
 				}
 	`
 

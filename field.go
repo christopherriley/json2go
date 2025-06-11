@@ -12,6 +12,24 @@ type GoField struct {
 	val       any
 }
 
+var fieldTokenReplace map[string]string
+
+func init() {
+	fieldTokenReplace = map[string]string{
+		"*":  "_star_",
+		"/":  "_fwdslash_",
+		"\\": "_backslash_",
+		"\"": "_dquote_",
+		"'":  "_squote_",
+		":":  "_colon_",
+		"$":  "_dollar_",
+		"(":  "_open_",
+		")":  "_close_",
+		"{":  "_open_",
+		"}":  "_close_",
+	}
+}
+
 func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
 	goField := newScalarField(v, name, depth, indent)
 	goField.array = true
@@ -92,7 +110,13 @@ func newScalarField(v any, name string, depth int, indent string) GoField {
 }
 
 func sanitizeFieldName(name string) string {
-	name = strings.ReplaceAll(name, "/", "fwdslash")
+	if name = strings.TrimSpace(name); len(name) == 0 {
+		panic("empty field name not allowed")
+	}
+
+	for token, replace := range fieldTokenReplace {
+		name = strings.ReplaceAll(name, token, replace)
+	}
 
 	for i := 0; i < 10; i++ {
 		if strings.HasPrefix(name, fmt.Sprintf("%d", i)) {
@@ -100,6 +124,8 @@ func sanitizeFieldName(name string) string {
 			break
 		}
 	}
+
+	name = strings.ToUpper(name[:1]) + name[1:]
 
 	return name
 }
