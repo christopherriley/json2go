@@ -76,7 +76,7 @@ func BuildGoStructArray(m []map[string]any, name string, depth int, indent strin
 			} else {
 				f := NewField(field, nil, depth, indent)
 				if len(s.field) > 0 {
-					f.setType(s.field[0].t)
+					f.setType(s.field[0].val)
 				}
 				s.field = append(s.field, f)
 			}

@@ -62,6 +62,7 @@ func getMap(v any) map[string]any {
 
 func (v GoValue) String() string {
 	var ret string
+	var typeInfoStr string
 
 	if v.t == fieldNil {
 		return ""
@@ -100,16 +101,13 @@ func (v GoValue) String() string {
 			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldStruct:
-			var elems []map[string]any
+			f := NewField("xx", v.val, v.depth+1, v.indent)
+			typeInfoStr = f.subStruct.String()
 			for _, elem := range v.val.([]any) {
-				elems = append(elems, getMap(elem))
-			}
-
-			structs := BuildGoStructArray(elems, "", v.depth+1, v.indent)
-
-			for _, s := range structs {
+				//elems = append(elems, getMap(elem))
+				sub := BuildGoStruct(getMap(elem), "", v.depth+1, v.indent)
 				value += "\n" + strings.Repeat(v.indent, v.depth+1)
-				value += fmt.Sprintf("%s,", GoInstance{s}.String())
+				value += fmt.Sprintf("%s,", GoInstance{*sub}.String())
 			}
 
 			value += "\n" + strings.Repeat(v.indent, v.depth) + "}"
@@ -118,7 +116,11 @@ func (v GoValue) String() string {
 			panic(fmt.Sprintf("field '%s' has unknown type %d", v.fieldName, v.t))
 		}
 
-		ret = fmt.Sprintf("[]%s%s", v.fieldTypeName, value)
+		if v.t != fieldStruct {
+			typeInfoStr = v.typeInfo.String()
+		}
+
+		ret = fmt.Sprintf("[]%s%s", typeInfoStr, value)
 	} else {
 		switch v.t {
 		case fieldString:

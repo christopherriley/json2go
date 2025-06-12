@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"reflect"
 )
 
 type fieldType int
@@ -18,12 +17,11 @@ const (
 )
 
 type typeInfo struct {
-	fieldName     string
-	fieldTypeName string
-	array         bool
-	t             fieldType
-	depth         int
-	indent        string
+	fieldName string
+	array     bool
+	t         fieldType
+	depth     int
+	indent    string
 }
 
 func NewTypeInfo(v any, fieldName, indent string, depth int) typeInfo {
@@ -60,26 +58,39 @@ func NewTypeInfo(v any, fieldName, indent string, depth int) typeInfo {
 func (ti *typeInfo) setType(v any) {
 	if v == nil {
 		ti.t = fieldNil
-		ti.fieldTypeName = "nil"
 		return
 	}
 
 	switch v := v.(type) {
 	case float64:
 		ti.t = fieldFloat
-		ti.fieldTypeName = "float64"
 		if v == math.Trunc(v) {
 			ti.t = fieldInt
-			ti.fieldTypeName = "int"
 		}
 	case string:
 		ti.t = fieldString
-		ti.fieldTypeName = "string"
 	case bool:
 		ti.t = fieldBool
-		ti.fieldTypeName = "bool"
 	default:
 		ti.t = fieldStruct
-		ti.fieldTypeName = fmt.Sprintf("struct - %s", reflect.TypeOf(v))
+	}
+}
+
+func (ti typeInfo) String() string {
+	switch ti.t {
+	case fieldNil:
+		return "nil"
+	case fieldBool:
+		return "bool"
+	case fieldInt:
+		return "int"
+	case fieldFloat:
+		return "float64"
+	case fieldString:
+		return "string"
+	case fieldStruct:
+		return "struct unknown"
+	default:
+		panic(fmt.Sprintf("unknown fieldtype %d", ti.t))
 	}
 }

@@ -42,26 +42,29 @@ func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
 func newArrayField(v []any, name string, depth int, indent string) GoField {
 	ti := NewTypeInfo(v, name, indent, depth)
 
+	var subStruct *GoStruct
+
 	if ti.t == fieldStruct {
-		var subs []map[string]any
+		combinedFields := make(map[string]any)
 		for _, elem := range v {
-			sub, ok := elem.(map[string]any)
+			m, ok := elem.(map[string]any)
 			if !ok {
-				panic(fmt.Sprintf("error parsing json field '%s' - type is '%+v'", name, v))
+				panic(fmt.Sprintf("error parsing json field '%s' - type is '%T'", name, v))
 			}
 
-			subs = append(subs, sub)
+			for f, v := range m {
+				combinedFields[f] = v
+			}
 		}
 
-		subStructs := BuildGoStructArray(subs, name, depth+1, indent)
-
-		ti.fieldTypeName = subStructs[0].String()
+		subStruct = BuildGoStruct(combinedFields, name, depth+1, indent)
 	}
 
 	ti.array = true
 
 	goField := GoField{
-		typeInfo: ti,
+		typeInfo:  ti,
+		subStruct: subStruct,
 	}
 
 	goField.array = true
@@ -82,7 +85,6 @@ func newScalarField(v any, name string, depth int, indent string) GoField {
 		}
 
 		subStruct = BuildGoStruct(sub, name, depth+1, indent)
-		ti.fieldTypeName = subStruct.String()
 	}
 
 	return GoField{
@@ -139,7 +141,11 @@ func (f GoField) String() string {
 		s += "[]"
 	}
 
-	s += f.fieldTypeName
+	if f.t == fieldStruct {
+		s += f.subStruct.String()
+	} else {
+		s += f.typeInfo.String()
+	}
 
 	return s
 }
