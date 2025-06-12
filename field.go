@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"strings"
 )
 
@@ -39,8 +38,9 @@ func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
 	return goField
 }
 
+// TODO: referencing element [0] causes issues with structs with optional fields
 func newArrayField(v []any, name string, depth int, indent string) GoField {
-	ti := NewTypeInfo(v[0], name, indent, depth)
+	ti := NewTypeInfo(v, name, indent, depth)
 
 	if ti.t == fieldStruct {
 		var subs []map[string]any
@@ -67,23 +67,6 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 	goField.array = true
 	goField.depth = depth
 	goField.val = v
-
-	if goField.t == fieldFloat {
-		goField.setType(fieldInt)
-	loop:
-		for _, elem := range v {
-			switch v := elem.(type) {
-			case float64:
-				if v != math.Trunc(v) {
-					goField.setType(fieldFloat)
-					break loop
-				}
-
-			default:
-				panic("mixed arrays not allowed")
-			}
-		}
-	}
 
 	return goField
 }
@@ -144,11 +127,6 @@ func NewField(k string, v any, depth int, indent string) GoField {
 		}
 	default:
 		f = newScalarField(v, k, depth, indent)
-		if f.t == fieldFloat {
-			if f.val.(float64) == math.Trunc(f.val.(float64)) {
-				f.setType(fieldInt)
-			}
-		}
 	}
 
 	return f

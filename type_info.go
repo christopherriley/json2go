@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"math"
+	"reflect"
+)
+
 type fieldType int
 
 const (
@@ -21,53 +27,59 @@ type typeInfo struct {
 }
 
 func NewTypeInfo(v any, fieldName, indent string, depth int) typeInfo {
-	var ft fieldType
-	var ftn string
-
 	ti := typeInfo{
-		fieldName:     fieldName,
-		fieldTypeName: ftn,
-		t:             ft,
-		indent:        indent,
-		depth:         depth,
+		fieldName: fieldName,
+		indent:    indent,
+		depth:     depth,
 	}
 
 	if v == nil {
-		ti.setType(fieldNil)
+		ti.setType(nil)
 		return ti
 	}
 
-	switch v.(type) {
-	case float64:
-		ti.setType(fieldFloat)
-	case string:
-		ti.setType(fieldString)
-	case int:
-		ti.setType(fieldInt)
-	case bool:
-		ti.setType(fieldBool)
+	switch v := v.(type) {
+	case []any:
+		ti.array = true
+		ti.setType(v[0])
+
+		if ti.t == fieldInt {
+			for _, elem := range v {
+				if elem.(float64) != math.Trunc(elem.(float64)) {
+					ti.setType(elem)
+				}
+			}
+		}
 	default:
-		ti.setType(fieldStruct)
+		ti.setType(v)
 	}
 
 	return ti
 }
 
-func (ti *typeInfo) setType(t fieldType) {
-	ti.t = t
-
-	switch t {
-	case fieldBool:
-		ti.fieldTypeName = "bool"
-	case fieldString:
-		ti.fieldTypeName = "string"
-	case fieldInt:
-		ti.fieldTypeName = "int"
-	case fieldFloat:
-		ti.fieldTypeName = "float64"
-	case fieldStruct:
-		ti.fieldTypeName = "struct"
-	case fieldNil:
+func (ti *typeInfo) setType(v any) {
+	if v == nil {
+		ti.t = fieldNil
 		ti.fieldTypeName = "nil"
+		return
+	}
+
+	switch v := v.(type) {
+	case float64:
+		ti.t = fieldFloat
+		ti.fieldTypeName = "float64"
+		if v == math.Trunc(v) {
+			ti.t = fieldInt
+			ti.fieldTypeName = "int"
+		}
+	case string:
+		ti.t = fieldString
+		ti.fieldTypeName = "string"
+	case bool:
+		ti.t = fieldBool
+		ti.fieldTypeName = "bool"
+	default:
+		ti.t = fieldStruct
+		ti.fieldTypeName = fmt.Sprintf("struct - %s", reflect.TypeOf(v))
 	}
 }
