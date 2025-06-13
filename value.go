@@ -104,7 +104,6 @@ func (v GoValue) String() string {
 			f := NewField("xx", v.val, v.depth+1, v.indent)
 			typeInfoStr = f.subStruct.String()
 			for _, elem := range v.val.([]any) {
-				//elems = append(elems, getMap(elem))
 				sub := BuildGoStruct(getMap(elem), "", v.depth+1, v.indent)
 				value += "\n" + strings.Repeat(v.indent, v.depth+1)
 				value += fmt.Sprintf("%s,", GoInstance{*sub}.String())
