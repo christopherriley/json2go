@@ -38,7 +38,6 @@ func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
 	return goField
 }
 
-// TODO: referencing element [0] causes issues with structs with optional fields
 func newArrayField(v []any, name string, depth int, indent string) GoField {
 	ti := NewTypeInfo(v, name, indent, depth)
 
