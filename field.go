@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 )
 
@@ -51,9 +52,7 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 				panic(fmt.Sprintf("error parsing json field '%s' - type is '%T'", name, v))
 			}
 
-			for f, v := range m {
-				combinedFields[f] = v
-			}
+			maps.Copy(combinedFields, m)
 		}
 
 		subStruct = BuildGoStruct(combinedFields, name, depth+1, indent)
