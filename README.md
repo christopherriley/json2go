@@ -1,6 +1,8 @@
 ## `json2go - convert json to go code`
 
-This module converts a json blob to go code. Reading from stdin is supported, as well as reading from input files, making it suitable for use with `go generate`.
+This module converts a json blob to go code. The generated code will consist of both a struct definition for the input json, as well as an instance of the struct that represents the input.
+
+Reading from stdin is supported, as well as reading from input files, making it suitable for use with `go generate`.
 
 ### `quick start - generate code from stdin`
 
@@ -14,7 +16,7 @@ cat <<EOF | go run .
 }
 EOF
 ```
-the generated go source will be written to the console.
+the generated go source will be written to the console, including both the struct definition and an instance.
 
 ### `how to use as a go generator`
 
