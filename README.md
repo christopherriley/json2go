@@ -6,7 +6,7 @@ Reading from stdin is supported, as well as reading from input files, making it 
 
 ### `quick start - generate code from stdin`
 
-try the following example to generate code from stdin:
+Try the following example to generate code from stdin:
 
 ```bash
 cat <<EOF | go run .
@@ -16,13 +16,14 @@ cat <<EOF | go run .
 }
 EOF
 ```
-the generated go source will be written to the console, including both the struct definition and an instance.
+
+The generated go source will be written to the console, including both the struct definition and an instance.
 
 ### `how to use as a go generator`
 
 Be sure to check out the [example app](example/)
 
-to use this module with `go generate`, use a directive like the following in your go source:
+To use this module with `go generate`, use a directive like the following in your go source:
 
 ```
 //go:generate go run github.com/christopherriley/json2go -in config.json -out config.go -struct Config -var config
@@ -30,7 +31,7 @@ to use this module with `go generate`, use a directive like the following in you
 
 #### `step 1 - create json file`
 
-create a simple json file to start with, for example
+Create a simple json file to start with, for example
 
 config.json
 ```json
@@ -42,7 +43,7 @@ config.json
 
 #### `step 2 - create a go main`
 
-create a go program that will consume the json file. include the `go generate` directive.
+Create a go program that will consume the json file. include the `go generate` directive.
 
 main.go
 ```go
@@ -61,13 +62,13 @@ func main() {
 
 #### `step 3 - generate the code`
 
-in order for the app to run, the go code will need to be generated from the json
+In order for the app to run, the go code will need to be generated from the json
 
 ```bash
 go generate
 ```
 
-you can examine the generated source
+You can examine the generated source
 
 ```bash
 cat config.go
@@ -96,7 +97,7 @@ var config Config = Config{
 go run main.go config.go
 ```
 
-you should see the following output:
+You should see the following output:
 
 ```bash
 name: bob
