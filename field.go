@@ -42,7 +42,7 @@ func newEmptyArrayField(v any, name string, depth int, indent string) GoField {
 func newArrayField(v []any, name string, depth int, indent string) GoField {
 	ti := NewTypeInfo(v, name, indent, depth)
 
-	var subStruct *GoStruct
+	var subStruct GoStruct
 
 	if ti.t == fieldStruct {
 		combinedFields := make(map[string]any)
@@ -62,7 +62,7 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 
 	goField := GoField{
 		typeInfo:  ti,
-		subStruct: subStruct,
+		subStruct: &subStruct,
 	}
 
 	goField.array = true
@@ -75,7 +75,7 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 func newScalarField(v any, name string, depth int, indent string) GoField {
 	ti := NewTypeInfo(v, name, indent, depth)
 
-	var subStruct *GoStruct
+	var subStruct GoStruct
 	if ti.t == fieldStruct {
 		sub, ok := v.(map[string]any)
 		if !ok {
@@ -88,7 +88,7 @@ func newScalarField(v any, name string, depth int, indent string) GoField {
 	return GoField{
 		val:       v,
 		typeInfo:  ti,
-		subStruct: subStruct,
+		subStruct: &subStruct,
 	}
 }
 

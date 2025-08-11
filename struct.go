@@ -25,7 +25,7 @@ func (s GoStruct) String() string {
 	return ret
 }
 
-func BuildGoStruct(m map[string]any, name string, depth int, indent string) *GoStruct {
+func BuildGoStruct(m map[string]any, name string, depth int, indent string) GoStruct {
 	s := GoStruct{
 		depth:  depth,
 		indent: indent,
@@ -43,5 +43,5 @@ func BuildGoStruct(m map[string]any, name string, depth int, indent string) *GoS
 		s.field = append(s.field, f)
 	}
 
-	return &s
+	return s
 }

@@ -36,7 +36,7 @@ func Generate(comment, rawJson, pkgName, structName, varName string) string {
 	}
 
 	goStruct := BuildGoStruct(rawJsonMap, structName, 0, "    ")
-	instance := GoInstance{*goStruct}
+	instance := GoInstance{goStruct}
 
 	params := TemplateParams{
 		Comment:     comment,
