@@ -69,32 +69,37 @@ func (v GoValue) String() string {
 	}
 
 	if v.array {
+		arrayVal, ok := v.val.([]any)
+		if !ok {
+			panic(fmt.Sprintf("field %s is not an array", v.fieldName))
+		}
+
 		value := "{"
 
 		switch v.t {
 		case fieldString:
-			for _, elem := range v.val.([]any) {
+			for _, elem := range arrayVal {
 				value += fmt.Sprintf(",\"%s\"", getString(elem))
 			}
 
 			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldInt:
-			for _, elem := range v.val.([]any) {
+			for _, elem := range arrayVal {
 				value += fmt.Sprintf(",%d", getInt(elem))
 			}
 
 			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldFloat:
-			for _, elem := range v.val.([]any) {
+			for _, elem := range arrayVal {
 				value += fmt.Sprintf(",%f", getFloat(elem))
 			}
 
 			value = strings.Replace(value, ",", "", 1) + "}"
 
 		case fieldBool:
-			for _, elem := range v.val.([]any) {
+			for _, elem := range arrayVal {
 				value += fmt.Sprintf(",%t", getBool(elem))
 			}
 
@@ -103,7 +108,7 @@ func (v GoValue) String() string {
 		case fieldStruct:
 			f := NewField("xx", v.val, v.depth+1, v.indent)
 			typeInfoStr = f.subStruct.String()
-			for _, elem := range v.val.([]any) {
+			for _, elem := range arrayVal {
 				sub := BuildGoStruct(getMap(elem), "", v.depth+1, v.indent)
 				value += "\n" + strings.Repeat(v.indent, v.depth+1)
 				value += fmt.Sprintf("%s,", GoInstance{sub}.String())
