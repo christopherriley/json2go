@@ -60,6 +60,15 @@ func getMap(v any) map[string]any {
 	return m
 }
 
+func getArray(v any) []any {
+	a, ok := v.([]any)
+	if !ok {
+		panic(fmt.Sprintf("cannot convert '%+v' to array", v))
+	}
+
+	return a
+}
+
 func (v GoValue) String() string {
 	var ret string
 	var typeInfoStr string
@@ -69,12 +78,9 @@ func (v GoValue) String() string {
 	}
 
 	if v.array {
-		arrayVal, ok := v.val.([]any)
-		if !ok {
-			panic(fmt.Sprintf("field %s is not an array", v.fieldName))
-		}
-
 		value := "{"
+
+		arrayVal := getArray(v.val)
 
 		switch v.t {
 		case fieldString:
