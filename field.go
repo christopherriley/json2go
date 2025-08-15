@@ -30,16 +30,16 @@ func init() {
 	}
 }
 
-func newEmptyArrayField(name string, depth int, indent string) GoField {
-	goField := newScalarField("", name, depth, indent)
-	goField.array = true
-	goField.depth = depth
-	goField.val = []any{}
-
-	return goField
-}
-
 func newArrayField(v []any, name string, depth int, indent string) GoField {
+	if len(v) == 0 {
+		goField := newScalarField("", name, depth, indent)
+		goField.array = true
+		goField.depth = depth
+		goField.val = []any{}
+
+		return goField
+	}
+
 	ti := NewTypeInfo(v, name, indent, depth)
 
 	var subStruct GoStruct
@@ -120,11 +120,7 @@ func NewField(k string, v any, depth int, indent string) GoField {
 
 	switch v := v.(type) {
 	case []any:
-		if len(v) == 0 {
-			f = newEmptyArrayField(k, depth, indent)
-		} else {
-			f = newArrayField(v, k, depth, indent)
-		}
+		f = newArrayField(v, k, depth, indent)
 	default:
 		f = newScalarField(v, k, depth, indent)
 	}
