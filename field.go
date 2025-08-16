@@ -30,44 +30,34 @@ func init() {
 	}
 }
 
-func newArrayField(v []any, name string, depth int, indent string) GoField {
+func newField(v any, name string, depth int, indent string) GoField {
 	ti := NewTypeInfo(v, name, indent, depth)
 
 	var subStruct GoStruct
 
 	if ti.t == fieldStruct {
-		combinedFields := make(map[string]any)
-		for _, elem := range v {
-			m, ok := elem.(map[string]any)
-			if !ok {
-				panic(fmt.Sprintf("error parsing json field '%s' - type is '%T'", name, v))
+		switch v := v.(type) {
+		case []any:
+			combinedFields := make(map[string]any)
+			for _, elem := range v {
+				m, ok := elem.(map[string]any)
+				if !ok {
+					panic(fmt.Sprintf("error parsing json field '%s' - type is '%T'", name, v))
+				}
+
+				maps.Copy(combinedFields, m)
 			}
 
-			maps.Copy(combinedFields, m)
+			subStruct = BuildGoStruct(combinedFields, name, depth+1, indent)
+
+		default:
+			sub, ok := v.(map[string]any)
+			if !ok {
+				panic(fmt.Sprintf("error parsing json field '%s' - type is '%+v'", name, v))
+			}
+
+			subStruct = BuildGoStruct(sub, name, depth+1, indent)
 		}
-
-		subStruct = BuildGoStruct(combinedFields, name, depth+1, indent)
-	}
-
-	return GoField{
-		val:       v,
-		typeInfo:  ti,
-		subStruct: &subStruct,
-	}
-}
-
-func newScalarField(v any, name string, depth int, indent string) GoField {
-	ti := NewTypeInfo(v, name, indent, depth)
-
-	var subStruct GoStruct
-
-	if ti.t == fieldStruct {
-		sub, ok := v.(map[string]any)
-		if !ok {
-			panic(fmt.Sprintf("error parsing json field '%s' - type is '%+v'", name, v))
-		}
-
-		subStruct = BuildGoStruct(sub, name, depth+1, indent)
 	}
 
 	return GoField{
@@ -99,18 +89,7 @@ func sanitizeFieldName(name string) string {
 }
 
 func NewField(k string, v any, depth int, indent string) GoField {
-	var f GoField
-
-	k = sanitizeFieldName(k)
-
-	switch v := v.(type) {
-	case []any:
-		f = newArrayField(v, k, depth, indent)
-	default:
-		f = newScalarField(v, k, depth, indent)
-	}
-
-	return f
+	return newField(v, sanitizeFieldName(k), depth, indent)
 }
 
 func (f GoField) String() string {
