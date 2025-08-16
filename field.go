@@ -49,22 +49,18 @@ func newArrayField(v []any, name string, depth int, indent string) GoField {
 		subStruct = BuildGoStruct(combinedFields, name, depth+1, indent)
 	}
 
-	goField := GoField{
+	return GoField{
+		val:       v,
 		typeInfo:  ti,
 		subStruct: &subStruct,
 	}
-
-	goField.array = true
-	goField.depth = depth
-	goField.val = v
-
-	return goField
 }
 
 func newScalarField(v any, name string, depth int, indent string) GoField {
 	ti := NewTypeInfo(v, name, indent, depth)
 
 	var subStruct GoStruct
+
 	if ti.t == fieldStruct {
 		sub, ok := v.(map[string]any)
 		if !ok {
