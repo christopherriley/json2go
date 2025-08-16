@@ -31,26 +31,7 @@ func NewTypeInfo(v any, fieldName, indent string, depth int) typeInfo {
 		depth:     depth,
 	}
 
-	if v == nil {
-		ti.setType(nil)
-		return ti
-	}
-
-	switch v := v.(type) {
-	case []any:
-		ti.array = true
-		ti.setType(v[0])
-
-		if ti.t == fieldInt {
-			for _, elem := range v {
-				if elem.(float64) != math.Trunc(elem.(float64)) {
-					ti.setType(elem)
-				}
-			}
-		}
-	default:
-		ti.setType(v)
-	}
+	ti.setType(v)
 
 	return ti
 }
@@ -62,6 +43,21 @@ func (ti *typeInfo) setType(v any) {
 	}
 
 	switch v := v.(type) {
+	case []any:
+		if len(v) > 0 {
+			ti.setType(v[0])
+
+			if ti.t == fieldInt {
+				for _, elem := range v {
+					if elem.(float64) != math.Trunc(elem.(float64)) {
+						ti.setType(elem)
+					}
+				}
+			}
+		} else {
+			ti.setType("")
+		}
+		ti.array = true
 	case float64:
 		ti.t = fieldFloat
 		if v == math.Trunc(v) {
