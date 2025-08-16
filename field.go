@@ -76,7 +76,7 @@ func sanitizeFieldName(name string) string {
 		name = strings.ReplaceAll(name, token, replace)
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		if strings.HasPrefix(name, fmt.Sprintf("%d", i)) {
 			name = "_" + name
 			break
