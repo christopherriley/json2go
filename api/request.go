@@ -30,9 +30,7 @@ func NewGoRequest(req *http.Request) (goRequest, error) {
 
 	goReq.Input = strings.TrimSpace(string(inputBytes))
 	if len(goReq.Input) == 0 {
-		return goRequest{}, &RequestError{
-			Err: "must provide source json as request body",
-		}
+		return goRequest{}, NewRequestError("must provide source json as request body", nil)
 	}
 
 	if qp := req.URL.Query().Get("package"); len(qp) > 0 {

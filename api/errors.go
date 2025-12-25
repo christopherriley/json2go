@@ -7,16 +7,40 @@ import (
 	"net/http"
 )
 
-type HttpError interface {
+type HttpErrorWriter interface {
 	write(http.ResponseWriter)
 }
 
+type HttpError struct {
+	HttpErrorWriter `json:"-"`
+	Err             string `json:"error,omitempty"`
+}
+
+func writeResponseWithStatus(w http.ResponseWriter, b []byte, statusCode int) {
+	w.WriteHeader(statusCode)
+	_, err := w.Write(b)
+	if err != nil {
+		log.Println("** Error: failed to write response: ", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+}
+
 type RequestError struct {
-	Err   string `json:"error,omitempty"`
+	HttpError
 	Cause string `json:"cause,omitempty"`
 }
 
-func (e *RequestError) Error() string {
+func NewRequestError(err string, cause error) RequestError {
+	re := RequestError{HttpError: HttpError{Err: err}}
+	if cause != nil {
+		re.Cause = cause.Error()
+	}
+
+	return re
+}
+
+func (e RequestError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Err, e.Cause)
 }
 
@@ -28,20 +52,18 @@ func (e RequestError) write(w http.ResponseWriter) {
 		return
 	}
 
-	w.WriteHeader(http.StatusBadRequest)
-	_, err = w.Write(b)
-	if err != nil {
-		log.Println("** Error: failed to write response: ", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
+	writeResponseWithStatus(w, b, http.StatusBadRequest)
 }
 
 type InternalError struct {
-	Err string `json:"error,omitempty"`
+	HttpError
 }
 
-func (e *InternalError) Error() string {
+func NewInternalError(s string) InternalError {
+	return InternalError{HttpError: HttpError{Err: s}}
+}
+
+func (e InternalError) Error() string {
 	return fmt.Sprintf("internal error: %s", e.Err)
 }
 
@@ -53,11 +75,5 @@ func (e InternalError) write(w http.ResponseWriter) {
 		return
 	}
 
-	w.WriteHeader(http.StatusInternalServerError)
-	_, err = w.Write(b)
-	if err != nil {
-		log.Println("** Error: failed to write response: ", err)
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
+	writeResponseWithStatus(w, b, http.StatusInternalServerError)
 }

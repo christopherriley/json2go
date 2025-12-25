@@ -31,13 +31,13 @@ func (api Api) GetServeMux() *http.ServeMux {
 func (Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
 	goReq, err := NewGoRequest(req)
 	if err != nil {
-		var httpError HttpError
+		var httpErrorWriter HttpErrorWriter
 
-		if errors.As(err, &httpError) {
-			httpError.write(w)
+		if errors.As(err, &httpErrorWriter) {
+			httpErrorWriter.write(w)
 		} else {
 			log.Println("*** internal error processing request: ", err)
-			ie := InternalError{"internal error handling request"}
+			ie := NewInternalError("internal error handling request")
 			ie.write(w)
 		}
 
@@ -50,11 +50,7 @@ func (Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
 
 	generatedCode, err := generate.Generate(generatedFileComment, goReq.Input, goReq.Package, goReq.Struct, goReq.Instance)
 	if err != nil {
-		re := RequestError{
-			Err:   "code could not be generated",
-			Cause: err.Error(),
-		}
-
+		re := NewRequestError("code could not be generated", err)
 		re.write(w)
 		return
 	}
