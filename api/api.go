@@ -1,11 +1,9 @@
 package api
 
 import (
-	"fmt"
-	"io"
+	"errors"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/christopherriley/json2go/generate"
 )
@@ -31,44 +29,33 @@ func (api Api) GetServeMux() *http.ServeMux {
 }
 
 func (Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
-	pkgName := "main"
-	structName := "Anonymous"
-	instanceName := "Instance"
-
-	inputBytes, err := io.ReadAll(req.Body)
+	goReq, err := NewGoRequest(req)
 	if err != nil {
-		log.Println("** Error: cannot get read request body: ", err)
-		http.Error(w, fmt.Sprintf("cannot read request body: %s", err), http.StatusInternalServerError)
+		var httpError HttpError
+
+		if errors.As(err, &httpError) {
+			httpError.write(w)
+		} else {
+			log.Println("*** internal error processing request: ", err)
+			ie := InternalError{"internal error handling request"}
+			ie.write(w)
+		}
+
 		return
-	}
-
-	req.Body.Close()
-
-	input := strings.TrimSpace(string(inputBytes))
-	if len(input) == 0 {
-		log.Println("** Error: must provide json in request body: ", err)
-		http.Error(w, "must provide json in request body", http.StatusBadRequest)
-		return
-	}
-
-	if pv := req.URL.Query().Get("package"); len(pv) > 0 {
-		pkgName = pv
-	}
-	if pv := req.URL.Query().Get("struct"); len(pv) > 0 {
-		structName = pv
-	}
-	if pv := req.URL.Query().Get("instance"); len(pv) > 0 {
-		instanceName = pv
 	}
 
 	generatedFileComment := "this file was generated"
 
-	log.Println("GET go: pkgName: ", pkgName, ", structName: ", structName, ", instanceName: ", instanceName)
+	log.Println("GET go: pkgName: ", goReq.Package, ", structName: ", goReq.Struct, ", instanceName: ", goReq.Instance)
 
-	generatedCode, err := generate.Generate(generatedFileComment, input, pkgName, structName, instanceName)
+	generatedCode, err := generate.Generate(generatedFileComment, goReq.Input, goReq.Package, goReq.Struct, goReq.Instance)
 	if err != nil {
-		log.Println("** Error: code could not be generated: ", err)
-		http.Error(w, fmt.Sprintf("code could not be generated: %s", err), http.StatusBadRequest)
+		re := RequestError{
+			Err:   "code could not be generated",
+			Cause: err.Error(),
+		}
+
+		re.write(w)
 		return
 	}
 
