@@ -1,4 +1,4 @@
-package main
+package generate
 
 import (
 	"bytes"
@@ -28,11 +28,11 @@ type TemplateParams struct {
 	Instance    string
 }
 
-func Generate(comment, rawJson, pkgName, structName, varName string) string {
+func Generate(comment, rawJson, pkgName, structName, varName string) (string, error) {
 	var rawJsonMap map[string]any
 
 	if err := json.Unmarshal([]byte(rawJson), &rawJsonMap); err != nil {
-		panic(fmt.Sprintf("failed to unmarshal input json: %s", err))
+		return "", fmt.Errorf("failed to unmarshal input json: %s", err)
 	}
 
 	goStruct := BuildGoStruct(rawJsonMap, structName, 0, "    ")
@@ -54,5 +54,5 @@ func Generate(comment, rawJson, pkgName, structName, varName string) string {
 		panic(fmt.Sprintf("template generation failed: %s", err))
 	}
 
-	return buf.String()
+	return buf.String(), nil
 }

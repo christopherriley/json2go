@@ -1,4 +1,4 @@
-package main
+package generate
 
 import (
 	"bufio"
@@ -259,7 +259,8 @@ func testGenerate(t *testing.T, rawJson, mainFunc, expected string) {
 	require.NoError(t, err)
 	defer os.RemoveAll(testDir)
 
-	generated := Generate(fmt.Sprintf("generated for unittest - %s", t.Name()), rawJson, "main", "Sample", "sample")
+	generated, err := Generate(fmt.Sprintf("generated for unittest - %s", t.Name()), rawJson, "main", "Sample", "sample")
+	require.NoError(t, err)
 
 	t.Logf("generated source:\n%s", generated)
 

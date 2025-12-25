@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/christopherriley/json2go/generate"
 )
 
 func main() {
@@ -17,7 +19,8 @@ func main() {
 
 	flag.Parse()
 
-	var input, generatedFileComment string
+	var input, generatedFileComment, generatedCode string
+	var err error
 
 	if len(strings.TrimSpace(*flagInputFile)) == 0 {
 		os.Stderr.WriteString("input file was not specified - reading from stdin\n\n")
@@ -37,7 +40,9 @@ func main() {
 		generatedFileComment = fmt.Sprintf("this file was generated from %s", *flagInputFile)
 	}
 
-	generatedCode := Generate(generatedFileComment, input, *flagPackageName, *flagStructName, *flagInstanceVar)
+	if generatedCode, err = generate.Generate(generatedFileComment, input, *flagPackageName, *flagStructName, *flagInstanceVar); err != nil {
+		panic(err)
+	}
 
 	if len(strings.TrimSpace(*flagOutputFile)) == 0 {
 		fmt.Println(generatedCode)
