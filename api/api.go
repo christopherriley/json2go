@@ -42,14 +42,14 @@ func (Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	req.Body.Close()
+
 	input := strings.TrimSpace(string(inputBytes))
 	if len(input) == 0 {
 		log.Println("** Error: must provide json in request body: ", err)
 		http.Error(w, "must provide json in request body", http.StatusBadRequest)
 		return
 	}
-
-	req.Body.Close()
 
 	if pv := req.URL.Query().Get("package"); len(pv) > 0 {
 		pkgName = pv
@@ -65,7 +65,7 @@ func (Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
 
 	log.Println("GET go: pkgName: ", pkgName, ", structName: ", structName, ", instanceName: ", instanceName)
 
-	generatedCode, err := generate.Generate(generatedFileComment, string(inputBytes), pkgName, structName, instanceName)
+	generatedCode, err := generate.Generate(generatedFileComment, input, pkgName, structName, instanceName)
 	if err != nil {
 		log.Println("** Error: code could not be generated: ", err)
 		http.Error(w, fmt.Sprintf("code could not be generated: %s", err), http.StatusBadRequest)
