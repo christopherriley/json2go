@@ -35,15 +35,9 @@ func NewGoRequest(w http.ResponseWriter, req *http.Request) (goRequest, error) {
 		return goRequest{}, NewRequestError("must provide source json as request body", nil)
 	}
 
-	if qp := req.URL.Query().Get("package"); len(qp) > 0 {
-		goReq.Package = qp
-	}
-	if qp := req.URL.Query().Get("struct"); len(qp) > 0 {
-		goReq.Struct = qp
-	}
-	if qp := req.URL.Query().Get("instance"); len(qp) > 0 {
-		goReq.Instance = qp
-	}
+	goReq.Package = strings.TrimSpace(req.URL.Query().Get("package"))
+	goReq.Struct = strings.TrimSpace(req.URL.Query().Get("struct"))
+	goReq.Instance = strings.TrimSpace(req.URL.Query().Get("instance"))
 
 	return goReq, nil
 }
