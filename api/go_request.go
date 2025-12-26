@@ -25,7 +25,7 @@ func NewGoRequest(w http.ResponseWriter, req *http.Request) (goRequest, error) {
 
 	inputBytes, err := io.ReadAll(req.Body)
 	if err != nil {
-		return goRequest{}, fmt.Errorf("failed to read request body: %s", err)
+		return goRequest{}, NewInternalError(fmt.Sprintf("failed to read request body: %s", err))
 	}
 
 	req.Body.Close()
@@ -35,9 +35,15 @@ func NewGoRequest(w http.ResponseWriter, req *http.Request) (goRequest, error) {
 		return goRequest{}, NewRequestError("must provide source json as request body", nil)
 	}
 
-	goReq.Package = strings.TrimSpace(req.URL.Query().Get("package"))
-	goReq.Struct = strings.TrimSpace(req.URL.Query().Get("struct"))
-	goReq.Instance = strings.TrimSpace(req.URL.Query().Get("instance"))
+	if qp := strings.TrimSpace(req.URL.Query().Get("package")); len(qp) > 0 {
+		goReq.Package = qp
+	}
+	if qp := strings.TrimSpace(req.URL.Query().Get("struct")); len(qp) > 0 {
+		goReq.Struct = qp
+	}
+	if qp := strings.TrimSpace(req.URL.Query().Get("instance")); len(qp) > 0 {
+		goReq.Instance = qp
+	}
 
 	return goReq, nil
 }

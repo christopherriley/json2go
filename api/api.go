@@ -17,7 +17,7 @@ func NewApi() *Api {
 		mux: mux,
 	}
 
-	mux.HandleFunc("GET /go", handleGetGo)
+	mux.HandleFunc("GET /go", api.handleGetGo)
 
 	return &api
 }
@@ -26,7 +26,7 @@ func (api Api) GetServeMux() *http.ServeMux {
 	return api.mux
 }
 
-func handlerError(w http.ResponseWriter, s string, err error) {
+func (Api) handlerError(w http.ResponseWriter, s string, err error) {
 	var httpErrorWriter HttpErrorWriter
 
 	if errors.As(err, &httpErrorWriter) {
@@ -38,10 +38,10 @@ func handlerError(w http.ResponseWriter, s string, err error) {
 	}
 }
 
-func handleGetGo(w http.ResponseWriter, req *http.Request) {
+func (api Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
 	goReq, err := NewGoRequest(w, req)
 	if err != nil {
-		handlerError(w, "processing request", err)
+		api.handlerError(w, "processing request", err)
 		return
 	}
 
@@ -49,7 +49,7 @@ func handleGetGo(w http.ResponseWriter, req *http.Request) {
 
 	generatedCode, err := goReq.generateCode()
 	if err != nil {
-		handlerError(w, "generating code", err)
+		api.handlerError(w, "generating code", err)
 		return
 	}
 
