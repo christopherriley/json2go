@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
@@ -51,8 +50,6 @@ func NewGoRequest(w http.ResponseWriter, req *http.Request) (goRequest, error) {
 
 func (goReq goRequest) generateCode() (string, error) {
 	generatedFileComment := "this file was generated"
-
-	log.Println("GET go: pkgName: ", goReq.Package, ", structName: ", goReq.Struct, ", instanceName: ", goReq.Instance)
 
 	generatedCode, err := generate.Generate(generatedFileComment, goReq.Input, goReq.Package, goReq.Struct, goReq.Instance)
 	if err != nil {

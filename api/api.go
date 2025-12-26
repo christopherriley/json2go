@@ -45,6 +45,8 @@ func handleGetGo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	log.Println("GET go: pkgName: ", goReq.Package, ", structName: ", goReq.Struct, ", instanceName: ", goReq.Instance)
+
 	generatedCode, err := goReq.generateCode()
 	if err != nil {
 		handlerError(w, "internal error generating code", err)
