@@ -32,7 +32,7 @@ func handlerError(w http.ResponseWriter, s string, err error) {
 	if errors.As(err, &httpErrorWriter) {
 		httpErrorWriter.write(w)
 	} else {
-		log.Printf("*** %s: %s\n", s, err)
+		log.Printf("*** internal error %s: %s\n", s, err)
 		ie := NewInternalError(s)
 		ie.write(w)
 	}
@@ -41,7 +41,7 @@ func handlerError(w http.ResponseWriter, s string, err error) {
 func handleGetGo(w http.ResponseWriter, req *http.Request) {
 	goReq, err := NewGoRequest(w, req)
 	if err != nil {
-		handlerError(w, "internal error processing request", err)
+		handlerError(w, "processing request", err)
 		return
 	}
 
@@ -49,7 +49,7 @@ func handleGetGo(w http.ResponseWriter, req *http.Request) {
 
 	generatedCode, err := goReq.generateCode()
 	if err != nil {
-		handlerError(w, "internal error generating code", err)
+		handlerError(w, "generating code", err)
 		return
 	}
 
