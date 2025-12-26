@@ -4,8 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-
-	"github.com/christopherriley/json2go/generate"
 )
 
 type Api struct {
@@ -19,7 +17,7 @@ func NewApi() *Api {
 		mux: mux,
 	}
 
-	mux.HandleFunc("GET /go", api.handleGetGo)
+	mux.HandleFunc("GET /go", handleGetGo)
 
 	return &api
 }
@@ -28,30 +26,28 @@ func (api Api) GetServeMux() *http.ServeMux {
 	return api.mux
 }
 
-func (Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
-	goReq, err := NewGoRequest(req)
+func handlerError(w http.ResponseWriter, s string, err error) {
+	var httpErrorWriter HttpErrorWriter
+
+	if errors.As(err, &httpErrorWriter) {
+		httpErrorWriter.write(w)
+	} else {
+		log.Printf("*** %s: %s\n", s, err)
+		ie := NewInternalError(s)
+		ie.write(w)
+	}
+}
+
+func handleGetGo(w http.ResponseWriter, req *http.Request) {
+	goReq, err := NewGoRequest(w, req)
 	if err != nil {
-		var httpErrorWriter HttpErrorWriter
-
-		if errors.As(err, &httpErrorWriter) {
-			httpErrorWriter.write(w)
-		} else {
-			log.Println("*** internal error processing request: ", err)
-			ie := NewInternalError("internal error handling request")
-			ie.write(w)
-		}
-
+		handlerError(w, "internal error processing request", err)
 		return
 	}
 
-	generatedFileComment := "this file was generated"
-
-	log.Println("GET go: pkgName: ", goReq.Package, ", structName: ", goReq.Struct, ", instanceName: ", goReq.Instance)
-
-	generatedCode, err := generate.Generate(generatedFileComment, goReq.Input, goReq.Package, goReq.Struct, goReq.Instance)
+	generatedCode, err := goReq.generateCode()
 	if err != nil {
-		re := NewRequestError("code could not be generated", err)
-		re.write(w)
+		handlerError(w, "internal error generating code", err)
 		return
 	}
 

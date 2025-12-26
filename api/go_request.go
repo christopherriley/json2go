@@ -3,8 +3,11 @@ package api
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
+
+	"github.com/christopherriley/json2go/generate"
 )
 
 type goRequest struct {
@@ -14,7 +17,7 @@ type goRequest struct {
 	Instance string
 }
 
-func NewGoRequest(req *http.Request) (goRequest, error) {
+func NewGoRequest(w http.ResponseWriter, req *http.Request) (goRequest, error) {
 	goReq := goRequest{
 		Package:  "main",
 		Struct:   "Anonymous",
@@ -44,4 +47,17 @@ func NewGoRequest(req *http.Request) (goRequest, error) {
 	}
 
 	return goReq, nil
+}
+
+func (goReq goRequest) generateCode() (string, error) {
+	generatedFileComment := "this file was generated"
+
+	log.Println("GET go: pkgName: ", goReq.Package, ", structName: ", goReq.Struct, ", instanceName: ", goReq.Instance)
+
+	generatedCode, err := generate.Generate(generatedFileComment, goReq.Input, goReq.Package, goReq.Struct, goReq.Instance)
+	if err != nil {
+		return "", NewRequestError("code could not be generated", err)
+	}
+
+	return generatedCode, nil
 }
