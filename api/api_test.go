@@ -10,36 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type mockResponseWriter struct{}
-
-func (mockResponseWriter) Header() http.Header {
-	return http.Header{}
-}
-
-func (mockResponseWriter) Write([]byte) (int, error) {
-	return -1, nil
-}
-
-func (mockResponseWriter) WriteHeader(statusCode int) {
-}
-
-type mockReadCloserWithError struct{}
-
-func (mockReadCloserWithError) Read(p []byte) (n int, err error) {
-	return 0, fmt.Errorf("read failed")
-}
-
-func (mockReadCloserWithError) Close() error {
-	return nil
-}
-
-func createTestGoRequest(t *testing.T, url, body string) *http.Request {
-	req, err := http.NewRequest("GET", url, strings.NewReader(body))
-	require.NoError(t, err)
-
-	return req
-}
-
 func TestApi(t *testing.T) {
 	t.Run("handleGetGo", func(t *testing.T) {
 		w := mockResponseWriter{}
@@ -56,7 +26,7 @@ func TestApi(t *testing.T) {
 		})
 
 		t.Run("unreadable body returns internal error", func(t *testing.T) {
-			reqWithUnreadableBody, err := http.NewRequest("GET", "/go", mockReadCloserWithError{})
+			reqWithUnreadableBody, err := http.NewRequest("GET", "/go", mockReadCloser{err: fmt.Errorf("read failed")})
 			require.NoError(t, err)
 
 			_, err = NewGoRequest(w, reqWithUnreadableBody)
