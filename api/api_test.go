@@ -10,6 +10,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func createTestRequest(t *testing.T, method, url, body string) *http.Request {
+	req, err := http.NewRequest(method, url, strings.NewReader(body))
+	require.NoError(t, err)
+
+	return req
+}
+
 func TestApi(t *testing.T) {
 	t.Run("handleGetGo", func(t *testing.T) {
 		w := mockResponseWriter{}
@@ -17,7 +24,7 @@ func TestApi(t *testing.T) {
 		var internalError InternalError
 
 		t.Run("invalid json input returns request error", func(t *testing.T) {
-			goReq, err := NewGoRequest(w, createTestGoRequest(t, "/go", "dsfsdf"))
+			goReq, err := NewGoRequest(w, createTestRequest(t, "GET", "/go", "dsfsdf"))
 			require.NoError(t, err)
 
 			_, err = goReq.generateCode()
@@ -38,7 +45,7 @@ func TestApi(t *testing.T) {
 			t.Run("with defaults", func(t *testing.T) {
 				input := `{"Name": "chris"}`
 
-				goReq, err := NewGoRequest(w, createTestGoRequest(t, "/go", input))
+				goReq, err := NewGoRequest(w, createTestRequest(t, "GET", "/go", input))
 				require.NoError(t, err)
 
 				expected := `
@@ -63,7 +70,7 @@ var Instance Anonymous = Anonymous{
 			t.Run("with query params", func(t *testing.T) {
 				input := `{"Name": "chris"}`
 
-				goReq, err := NewGoRequest(w, createTestGoRequest(t, `/go?package=somepkg&struct=TestStruct&instance=myVar`, input))
+				goReq, err := NewGoRequest(w, createTestRequest(t, "GET", `/go?package=somepkg&struct=TestStruct&instance=myVar`, input))
 				require.NoError(t, err)
 
 				expected := `
