@@ -25,7 +25,7 @@ func NewGoRequest(w http.ResponseWriter, req *http.Request) (goRequest, error) {
 
 	inputBytes, err := io.ReadAll(req.Body)
 	if err != nil {
-		return goRequest{}, NewInternalError(fmt.Sprintf("failed to read request body: %s", err))
+		return goRequest{}, fmt.Errorf("failed to read request body: %s", err)
 	}
 
 	req.Body.Close()
