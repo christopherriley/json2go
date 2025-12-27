@@ -53,5 +53,6 @@ func (api Api) handleGetGo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(generatedCode))
 }

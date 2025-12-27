@@ -3,19 +3,27 @@ package api
 import (
 	"io"
 	"net/http"
+	"strings"
 )
 
-type mockResponseWriter struct{}
+type mockResponseWriter struct {
+	buf        *strings.Builder
+	statusCode *int
+}
 
 func (mockResponseWriter) Header() http.Header {
 	return http.Header{}
 }
 
-func (mockResponseWriter) Write([]byte) (int, error) {
-	return 0, nil
+func (m mockResponseWriter) Write(b []byte) (int, error) {
+	if _, err := m.buf.Write(b); err != nil {
+		return 0, err
+	}
+	return len(b), nil
 }
 
-func (mockResponseWriter) WriteHeader(statusCode int) {
+func (m mockResponseWriter) WriteHeader(statusCode int) {
+	*m.statusCode = statusCode
 }
 
 type mockReadCloser struct {

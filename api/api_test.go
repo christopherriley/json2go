@@ -18,35 +18,36 @@ func createTestRequest(t *testing.T, method, url, body string) *http.Request {
 }
 
 func TestApi(t *testing.T) {
+	api := NewApi()
+
 	t.Run("handleGetGo", func(t *testing.T) {
-		w := mockResponseWriter{}
-		var requestError RequestError
-		var internalError InternalError
+		var responseWriterBuf strings.Builder
+		var responseWriterStatusCode int
+		w := mockResponseWriter{buf: &responseWriterBuf, statusCode: &responseWriterStatusCode}
 
 		t.Run("invalid json input returns request error", func(t *testing.T) {
-			goReq, err := NewGoRequest(w, createTestRequest(t, "GET", "/go", "dsfsdf"))
-			require.NoError(t, err)
+			responseWriterBuf.Reset()
 
-			_, err = goReq.generateCode()
-			require.Error(t, err)
-			assert.ErrorAs(t, err, &requestError)
+			req := createTestRequest(t, "GET", "/go", "invalid json")
+			api.handleGetGo(w, req)
+			require.Equal(t, http.StatusBadRequest, responseWriterStatusCode)
 		})
 
 		t.Run("unreadable body returns internal error", func(t *testing.T) {
+			responseWriterBuf.Reset()
+
 			reqWithUnreadableBody, err := http.NewRequest("GET", "/go", mockReadCloser{err: fmt.Errorf("read failed")})
 			require.NoError(t, err)
-
-			_, err = NewGoRequest(w, reqWithUnreadableBody)
-			require.Error(t, err)
-			assert.ErrorAs(t, err, &internalError)
+			api.handleGetGo(w, reqWithUnreadableBody)
+			require.Equal(t, http.StatusInternalServerError, responseWriterStatusCode)
 		})
 
 		t.Run("valid json input", func(t *testing.T) {
 			t.Run("with defaults", func(t *testing.T) {
-				input := `{"Name": "chris"}`
+				responseWriterBuf.Reset()
 
-				goReq, err := NewGoRequest(w, createTestRequest(t, "GET", "/go", input))
-				require.NoError(t, err)
+				input := `{"Name": "chris"}`
+				req := createTestRequest(t, "GET", "/go", input)
 
 				expected := `
 // this file was generated
@@ -62,16 +63,16 @@ var Instance Anonymous = Anonymous{
     Name: "chris",
 }
 `
-				actual, err := goReq.generateCode()
-				require.NoError(t, err)
-				assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(actual))
+				api.handleGetGo(w, req)
+				require.Equal(t, http.StatusOK, responseWriterStatusCode)
+				assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(responseWriterBuf.String()))
 			})
 
 			t.Run("with query params", func(t *testing.T) {
-				input := `{"Name": "chris"}`
+				responseWriterBuf.Reset()
 
-				goReq, err := NewGoRequest(w, createTestRequest(t, "GET", `/go?package=somepkg&struct=TestStruct&instance=myVar`, input))
-				require.NoError(t, err)
+				input := `{"Name": "chris"}`
+				req := createTestRequest(t, "GET", "/go?package=somepkg&struct=TestStruct&instance=myVar", input)
 
 				expected := `
 // this file was generated
@@ -88,9 +89,9 @@ var myVar TestStruct = TestStruct{
 }
 `
 
-				actual, err := goReq.generateCode()
-				require.NoError(t, err)
-				assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(actual))
+				api.handleGetGo(w, req)
+				require.Equal(t, http.StatusOK, responseWriterStatusCode)
+				assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(responseWriterBuf.String()))
 			})
 		})
 	})
