@@ -10,6 +10,58 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type validJsonTestCase struct {
+	testName  string
+	inputJson string
+	inputUri  string
+	expect    string
+}
+
+var validJsonWithDefaultsTest = validJsonTestCase{
+	testName:  "with defaults",
+	inputJson: `{"Name": "chris"}`,
+	inputUri:  "/go",
+	expect: `
+// this file was generated
+// do not modify
+
+package main
+
+type Anonymous struct {
+    Name string
+}
+
+var Instance Anonymous = Anonymous{
+    Name: "chris",
+}
+`,
+}
+
+var validJsonWithQueryParamsTest = validJsonTestCase{
+	testName:  "with query params",
+	inputJson: `{"Name": "chris"}`,
+	inputUri:  "/go?package=somepkg&struct=TestStruct&instance=myVar",
+	expect: `
+// this file was generated
+// do not modify
+
+package somepkg
+
+type TestStruct struct {
+    Name string
+}
+
+var myVar TestStruct = TestStruct{
+    Name: "chris",
+}
+`,
+}
+
+var validJsonTestCases []validJsonTestCase = []validJsonTestCase{
+	validJsonWithDefaultsTest,
+	validJsonWithQueryParamsTest,
+}
+
 func createTestRequest(t *testing.T, method, url, body string) *http.Request {
 	req, err := http.NewRequest(method, url, strings.NewReader(body))
 	require.NoError(t, err)
@@ -43,56 +95,16 @@ func TestApi(t *testing.T) {
 		})
 
 		t.Run("valid json input", func(t *testing.T) {
-			t.Run("with defaults", func(t *testing.T) {
-				responseWriterBuf.Reset()
+			for _, testCase := range validJsonTestCases {
+				t.Run(testCase.testName, func(t *testing.T) {
+					responseWriterBuf.Reset()
 
-				input := `{"Name": "chris"}`
-				req := createTestRequest(t, "GET", "/go", input)
-
-				expected := `
-// this file was generated
-// do not modify
-
-package main
-
-type Anonymous struct {
-    Name string
-}
-
-var Instance Anonymous = Anonymous{
-    Name: "chris",
-}
-`
-				api.handleGetGo(w, req)
-				require.Equal(t, http.StatusOK, responseWriterStatusCode)
-				assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(responseWriterBuf.String()))
-			})
-
-			t.Run("with query params", func(t *testing.T) {
-				responseWriterBuf.Reset()
-
-				input := `{"Name": "chris"}`
-				req := createTestRequest(t, "GET", "/go?package=somepkg&struct=TestStruct&instance=myVar", input)
-
-				expected := `
-// this file was generated
-// do not modify
-
-package somepkg
-
-type TestStruct struct {
-    Name string
-}
-
-var myVar TestStruct = TestStruct{
-    Name: "chris",
-}
-`
-
-				api.handleGetGo(w, req)
-				require.Equal(t, http.StatusOK, responseWriterStatusCode)
-				assert.Equal(t, strings.TrimSpace(expected), strings.TrimSpace(responseWriterBuf.String()))
-			})
+					req := createTestRequest(t, "GET", testCase.inputUri, testCase.inputJson)
+					api.handleGetGo(w, req)
+					require.Equal(t, http.StatusOK, responseWriterStatusCode)
+					assert.Equal(t, strings.TrimSpace(testCase.expect), strings.TrimSpace(responseWriterBuf.String()))
+				})
+			}
 		})
 	})
 }
